@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Diseño del sistema de inferencia bayesiano</title>
+<style>
+  @page {
+    size: A4;
+    margin: 2.2cm 2cm;
+    @top-center { content: string(doctitle); font-family: Georgia, serif; font-size: 9pt; color: #666; }
+    @bottom-center { content: counter(page); font-family: Georgia, serif; font-size: 9pt; color: #666; }
+  }
+  @page :first { margin: 0; @top-center { content: none; } @bottom-center { content: none; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 0; font-family: Georgia, "Times New Roman", serif; color: #333;
+         font-size: 11pt; line-height: 1.52; text-align: justify; text-align-last: left;
+         string-set: doctitle ""; }
+  .cover { width: 210mm; height: 297mm; margin: 0; position: relative; overflow: hidden;
+           page-break-after: always; background: white; }
+  .cover-content { position: absolute; top: 46%; left: 50%; transform: translate(-50%, -50%);
+                   text-align: center; width: 82%; }
+  .cover-title { font-size: 28pt; color: #183153; line-height: 1.25; margin-bottom: 0.7cm; }
+  .cover-subtitle { font-size: 16pt; color: #555; margin-bottom: 2.7cm; }
+  .cover-meta { font-size: 12pt; line-height: 1.9; color: #333; }
+  h1 { string-set: doctitle content(); font-size: 20pt; color: #183153; margin-top: 0;
+       border-bottom: 1px solid #999; padding-bottom: 0.2cm; page-break-after: avoid; }
+  h2 { font-size: 16pt; color: #183153; margin-top: 1.2em; page-break-after: avoid; }
+  h3 { font-size: 12.5pt; color: #23496b; margin-top: 1.1em; page-break-after: avoid; }
+  p { orphans: 2; widows: 2; }
+  .toc-page { page-break-after: always; }
+  .toc { list-style: none; padding: 0; }
+  .toc li { border-bottom: 1px dotted #999; margin: 0.35em 0; }
+  .toc a { color: #333; text-decoration: none; display: block; }
+  .toc a::after { content: target-counter(attr(href url), page); float: right; }
+  figure { margin: 1.1em auto; text-align: center; page-break-inside: avoid; max-width: 100%; }
+  figure img { max-width: 100%; max-height: 175mm; height: auto; }
+  figcaption { margin-top: 0.45em; font-size: 10pt; color: #555; text-align: center; }
+  figcaption::before { content: attr(data-label) ". "; font-weight: bold; }
+  table { width: 100%; max-width: 100%; border-collapse: collapse; margin: 0.8em 0 1.2em;
+          font-size: 9.5pt; line-height: 1.35; }
+  thead { display: table-header-group; border-top: 1.6px solid #333; border-bottom: 1px solid #333; }
+  tbody { border-bottom: 1.6px solid #333; }
+  th, td { padding: 0.42em 0.5em; vertical-align: top; text-align: left; }
+  tr { page-break-inside: avoid; }
+  caption { text-align: left; font-size: 10pt; margin-bottom: 0.35em; color: #555; }
+  caption::before { content: attr(data-label) ". "; font-weight: bold; }
+  .definition { border-left: 3px solid #2f6690; padding: 0.25em 0 0.25em 1em; margin: 1em 0;
+                page-break-inside: avoid; }
+  .equation { display: flex; gap: 1em; align-items: flex-start; margin: 0.9em 0; padding: 0.65em;
+              border-top: 1px solid #bbb; border-bottom: 1px solid #bbb; page-break-inside: avoid;
+              font-family: "Times New Roman", serif; }
+  .equation .number { margin-left: auto; white-space: nowrap; }
+  pre { background: #f5f5f5; border-left: 3px solid #777; padding: 0.8em; white-space: pre-wrap;
+        word-wrap: break-word; font-size: 9.5pt; line-height: 1.4; max-width: 100%; page-break-inside: avoid; }
+  code { font-family: "Courier New", monospace; word-break: break-word; }
+  .note { font-size: 10pt; color: #555; }
+  .page-break-before { page-break-before: always; }
+  ul, ol { padding-left: 1.5em; }
+</style>
+</head>
+<body>
+<section class="cover">
+  <div class="cover-content">
+    <h1 class="cover-title">Diseño de un sistema de inferencia bayesiano</h1>
+    <p class="cover-subtitle">Diagnóstico probabilístico de fallas de computadores</p>
+    <div class="cover-meta">
+      <p><strong>Asignatura:</strong> Sistemas expertos</p>
+      <p><strong>Autor:</strong> Juan Cabral</p>
+      <p><strong>Entrega:</strong> Diagramas y código fuente orientado a objetos a tres capas</p>
+    </div>
+  </div>
+</section>
+<section class="toc-page">
+  <h1>Contenido</h1>
+  <ul class="toc">
+    <li><a href="#sec1">1. Objetivo y alcance</a></li>
+    <li><a href="#sec2">2. Diagrama de caja negra</a></li>
+    <li><a href="#sec3">3. Diagramas de flujo de datos</a></li>
+    <li><a href="#sec4">4. Base de conocimiento y red bayesiana</a></li>
+    <li><a href="#sec5">5. Motor de inferencia</a></li>
+    <li><a href="#sec6">6. Selección sucesiva de preguntas</a></li>
+    <li><a href="#sec7">7. Arquitectura orientada a objetos a tres capas</a></li>
+    <li><a href="#sec8">8. Ejemplo de funcionamiento</a></li>
+    <li><a href="#sec9">9. Validación</a></li>
+    <li><a href="#sec10">10. Ejecución y alcance de los resultados</a></li>
+    <li><a href="#appa">Apéndice A. Tablas de probabilidad condicional</a></li>
+  </ul>
+</section>
+
+<h1 id="sec1">1. Objetivo y alcance</h1>
+<p>El sistema identifica cinco hipótesis de falla en un computador y calcula su probabilidad posterior a partir de las respuestas del usuario. El dominio seleccionado es el diagnóstico inicial de fallas de hardware y de sistema operativo. La solución utiliza una red bayesiana discreta, inferencia exacta y una base de conocimiento externa al código.</p>
+<p>Las cinco hipótesis son binarias —presencia o ausencia de cada falla— y pueden coexistir. Por esta razón, cada resultado es una probabilidad marginal independiente y los cinco porcentajes no tienen que sumar 100 %. Las probabilidades iniciales y las tablas condicionales son valores académicos configurables, no estadísticas reales de incidencia.</p>
+<div class="definition"><strong>Cumplimiento del enunciado.</strong> El diagnóstico no se obtiene mediante reglas del tipo «si ocurre A, entonces H». El motor evalúa sistemáticamente los estados de la red y consulta hipótesis, síntomas y tablas de probabilidad mediante operaciones granulares del repositorio.</div>
+
+<h1 id="sec2">2. Diagrama de caja negra</h1>
+<p>La entrada está formada por respuestas «sí», «no» o «no sé» a síntomas observables. La salida es la lista de cinco hipótesis con su probabilidad a priori, su probabilidad posterior y su orden de prioridad.</p>
+<figure id="fig1"><img src="diagramas/01_caja_negra.png" alt="Diagrama de caja negra"><figcaption data-label="Figura 1">Vista de caja negra del sistema.</figcaption></figure>
+
+<h1 id="sec3">3. Diagramas de flujo de datos</h1>
+<h2>3.1 Nivel 0: contexto</h2>
+<p>El usuario intercambia respuestas, preguntas y resultados con un único proceso general. La repetición de la entidad usuario a ambos lados se emplea únicamente para facilitar la lectura.</p>
+<figure id="fig2"><img src="diagramas/02_dfd_nivel_0.png" alt="DFD de contexto"><figcaption data-label="Figura 2">Diagrama de flujo de datos de contexto.</figcaption></figure>
+<h2>3.2 Nivel 1: procesos internos</h2>
+<p>El nivel 1 descompone el sistema en gestión de la sesión, selección de la siguiente pregunta e inferencia bayesiana. D1 almacena el conocimiento persistente; D2 representa la evidencia de la sesión actual.</p>
+<figure id="fig3"><img src="diagramas/03_dfd_nivel_1.png" alt="DFD nivel 1"><figcaption data-label="Figura 3">Descomposición del flujo de datos en tres procesos y dos almacenes.</figcaption></figure>
+
+<h1 id="sec4">4. Base de conocimiento y red bayesiana</h1>
+<h2>4.1 Hipótesis y probabilidades iniciales</h2>
+<table><caption data-label="Tabla 1">Hipótesis del dominio.</caption>
+<thead><tr><th>ID</th><th>Hipótesis</th><th>Interpretación</th><th>P(Hᵢ)</th></tr></thead>
+<tbody><tr><td>H1</td><td>Fuente de poder defectuosa</td><td>La fuente no entrega energía estable o suficiente.</td><td>8%</td></tr><tr><td>H2</td><td>Memoria RAM defectuosa</td><td>Un módulo o la configuración de memoria produce errores.</td><td>10%</td></tr><tr><td>H3</td><td>Sobrecalentamiento</td><td>La refrigeración insuficiente provoca inestabilidad o apagados.</td><td>12%</td></tr><tr><td>H4</td><td>Falla de almacenamiento</td><td>El disco presenta daños físicos, lógicos o errores de acceso.</td><td>9%</td></tr><tr><td>H5</td><td>Sistema operativo corrupto</td><td>Archivos, controladores o configuraciones del sistema están dañados.</td><td>11%</td></tr></tbody></table>
+<h2>4.2 Variables de evidencia</h2>
+<p>Cada síntoma es una variable binaria. La columna «Padres» indica las hipótesis de las que depende directamente su tabla de probabilidad condicional (CPT).</p>
+<table><caption data-label="Tabla 2">Síntomas y dependencias directas.</caption>
+<thead><tr><th>ID</th><th>Pregunta presentada al usuario</th><th>Padres</th></tr></thead>
+<tbody><tr><td>S1</td><td>¿El equipo no enciende o no muestra señales de energía?</td><td>H1</td></tr><tr><td>S2</td><td>¿El equipo se reinicia o se apaga de forma inesperada?</td><td>H1, H2, H3</td></tr><tr><td>S3</td><td>¿Se presentan pantallazos azules o errores críticos?</td><td>H2, H4, H5</td></tr><tr><td>S4</td><td>¿El equipo presenta lentitud notable durante su uso habitual?</td><td>H3, H4, H5</td></tr><tr><td>S5</td><td>¿Se detectan errores de lectura, escritura o sectores defectuosos?</td><td>H4, H5</td></tr><tr><td>S6</td><td>¿El sistema operativo no inicia correctamente?</td><td>H1, H4, H5</td></tr><tr><td>S7</td><td>¿La temperatura es alta o los ventiladores funcionan de forma anormal?</td><td>H3</td></tr><tr><td>S8</td><td>¿Se escuchan pitidos de diagnóstico durante el arranque?</td><td>H1, H2</td></tr><tr><td>S9</td><td>¿Aparecen archivos dañados o aplicaciones que se cierran inesperadamente?</td><td>H4, H5</td></tr><tr><td>S10</td><td>¿El problema comenzó después de instalar o actualizar software?</td><td>H5</td></tr></tbody></table>
+<figure id="fig4"><img src="diagramas/04_red_bayesiana.png" alt="Red bayesiana"><figcaption data-label="Figura 4">Estructura dirigida de la red bayesiana.</figcaption></figure>
+<p>La red no es un clasificador bayesiano ingenuo: existen cinco nodos de hipótesis y varios síntomas tienen más de un padre. Las CPT completas se incluyen en el apéndice A y en <code>data/knowledge_base.json</code>.</p>
+
+<h1 id="sec5">5. Motor de inferencia</h1>
+<p>Las hipótesis son independientes a priori. Para una asignación binaria <strong>h</strong> de las cinco hipótesis y el conjunto de síntomas observados, la distribución conjunta se factoriza así:</p>
+<div class="equation"><span>P(h, s) = [ ∏<sub>i=1…5</sub> P(hᵢ) ] · [ ∏<sub>j=1…10</sub> P(sⱼ | Pa(sⱼ)) ]</span><span class="number">(1)</span></div>
+<p>Al registrar evidencia E, el motor multiplica el peso previo de cada asignación por la verosimilitud de cada respuesta. Después normaliza todos los pesos dividiéndolos entre P(E). La probabilidad posterior de una hipótesis se obtiene sumando los pesos de las asignaciones en las que esa hipótesis está presente:</p>
+<div class="equation"><span>P(Hq = presente | E) = Σ<sub>h: hq=presente</sub> [ P(h) · ∏<sub>sj∈E</sub> P(sj | Pa(sj)) ] / P(E)</span><span class="number">(2)</span></div>
+<p>Como hay cinco hipótesis binarias, la enumeración exacta evalúa 2⁵ = 32 asignaciones. No se utiliza muestreo ni una aproximación. Una respuesta «no sé» marca la pregunta como consultada, pero no incorpora evidencia ni modifica las probabilidades.</p>
+
+<h1 id="sec6">6. Selección sucesiva de preguntas</h1>
+<p>Después de cada respuesta, el sistema calcula la ganancia de información esperada de todos los síntomas aún no consultados. Para ello compara la entropía actual de la distribución conjunta con la entropía posterior esperada después de responder «sí» o «no»:</p>
+<div class="equation"><span>IG(S) = H(H | E) − Σ<sub>s∈{sí,no}</sub> P(S=s | E) · H(H | E, S=s)</span><span class="number">(3)</span></div>
+<p>La siguiente pregunta es la de mayor ganancia. Este mecanismo evita un orden rígido de preguntas y reduce la incertidumbre usando la evidencia disponible. Las consultas a la base son pequeñas y sucesivas: obtener hipótesis, obtener un síntoma, obtener una pregunta y obtener la CPT de un síntoma.</p>
+<table><caption data-label="Tabla 3">Consultas granulares del repositorio.</caption>
+<thead><tr><th>Método</th><th>Dato recuperado</th></tr></thead>
+<tbody>
+<tr><td><code>get_hypotheses()</code></td><td>Identificadores, descripciones y probabilidades iniciales.</td></tr>
+<tr><td><code>get_symptoms()</code></td><td>Lista de variables observables.</td></tr>
+<tr><td><code>get_symptom(id)</code></td><td>Un síntoma y sus padres.</td></tr>
+<tr><td><code>get_question(id)</code></td><td>El texto de una pregunta.</td></tr>
+<tr><td><code>get_cpt(id)</code></td><td>Solo la tabla condicional del síntoma solicitado.</td></tr>
+</tbody></table>
+
+<h1 id="sec7">7. Arquitectura orientada a objetos a tres capas</h1>
+<figure id="fig5"><img src="diagramas/05_arquitectura_tres_capas.png" alt="Arquitectura a tres capas"><figcaption data-label="Figura 5">Responsabilidades y dependencias entre capas.</figcaption></figure>
+<table><caption data-label="Tabla 4">Clases principales.</caption>
+<thead><tr><th>Clase</th><th>Responsabilidad</th></tr></thead>
+<tbody>
+<tr><td><code>ConsoleApp</code></td><td>Captura entradas y presenta resultados; no contiene conocimiento.</td></tr>
+<tr><td><code>DiagnosisService</code></td><td>Controla la sesión, las respuestas y las preguntas ya realizadas.</td></tr>
+<tr><td><code>BayesianInferenceEngine</code></td><td>Realiza inferencia exacta y calcula ganancia de información.</td></tr>
+<tr><td><code>KnowledgeRepository</code></td><td>Define el contrato abstracto de acceso al conocimiento.</td></tr>
+<tr><td><code>SQLiteKnowledgeRepository</code></td><td>Implementa las consultas SQL granulares.</td></tr>
+<tr><td><code>Hypothesis</code>, <code>Symptom</code>, <code>ConditionalProbabilityTable</code></td><td>Modelan las entidades del dominio.</td></tr>
+</tbody></table>
+<pre>src/
+├── presentation/console_app.py
+├── application/diagnosis_service.py
+├── application/inference_engine.py
+├── domain/entities.py
+├── domain/knowledge_repository.py
+└── infrastructure/sqlite_knowledge_repository.py</pre>
+
+<h1 id="sec8">8. Ejemplo de funcionamiento</h1>
+<p>Se evaluó el siguiente caso: el sistema operativo no inicia correctamente (S6 = sí), el equipo sí presenta señales de energía (S1 = no), existen errores de lectura o escritura (S5 = sí) y el problema comenzó después de un cambio de software (S10 = sí).</p>
+<table><caption data-label="Tabla 5">Resultado calculado por el motor para el caso de ejemplo.</caption>
+<thead><tr><th>ID</th><th>Hipótesis</th><th>Prior</th><th>Posterior</th></tr></thead>
+<tbody><tr><td>H5</td><td>Sistema operativo corrupto</td><td>11%</td><td>86.35%</td></tr><tr><td>H4</td><td>Falla de almacenamiento</td><td>9%</td><td>35.21%</td></tr><tr><td>H3</td><td>Sobrecalentamiento</td><td>12%</td><td>12.00%</td></tr><tr><td>H2</td><td>Memoria RAM defectuosa</td><td>10%</td><td>10.00%</td></tr><tr><td>H1</td><td>Fuente de poder defectuosa</td><td>8%</td><td>0.94%</td></tr></tbody></table>
+<p>La evidencia favorece principalmente H5. H4 conserva una probabilidad relevante porque los errores de disco también pueden originarse en una falla de almacenamiento. H1 disminuye debido a la presencia de energía. H2 y H3 no cambian porque ninguna de las evidencias del ejemplo depende de ellas.</p>
+
+<h1 id="sec9">9. Validación</h1>
+<p>El proyecto incluye seis pruebas automatizadas que se ejecutaron correctamente.</p>
+<table><caption data-label="Tabla 6">Cobertura de las pruebas.</caption>
+<thead><tr><th>Prueba</th><th>Comprobación</th></tr></thead>
+<tbody>
+<tr><td>Sin evidencia</td><td>Las cinco posteriores coinciden con sus priors.</td></tr>
+<tr><td>Síntoma de energía positivo</td><td>Aumenta la probabilidad de H1 y todas permanecen entre 0 y 1.</td></tr>
+<tr><td>Síntoma de disco negativo</td><td>Disminuye la probabilidad de H4.</td></tr>
+<tr><td>Respuesta «no sé»</td><td>No altera la evidencia y evita repetir la pregunta.</td></tr>
+<tr><td>Ranking de preguntas</td><td>Incluye diez síntomas y ganancias no negativas ordenadas.</td></tr>
+<tr><td>Integridad de CPT</td><td>Cada tabla contiene las 2ⁿ combinaciones de sus padres.</td></tr>
+</tbody></table>
+
+<h1 id="sec10">10. Ejecución y alcance de los resultados</h1>
+<p>El proyecto requiere Python 3.10 o superior y no utiliza dependencias externas. Desde la raíz del proyecto:</p>
+<pre># 1. Ejecutar el sistema experto
+python main.py
+
+# 2. Ejecutar las seis pruebas automatizadas
+python -m unittest discover -s tests -v</pre>
+<p>La primera ejecución crea <code>data/knowledge.db</code>. Para modificar el conocimiento se edita <code>data/knowledge_base.json</code>, se elimina la base generada y se vuelve a ejecutar el programa. Los diagramas se entregan en PNG, SVG y fuentes Mermaid editables.</p>
+<p class="note"><strong>Alcance:</strong> el sistema prioriza hipótesis para orientar el diagnóstico. No confirma físicamente una falla ni reemplaza procedimientos técnicos de comprobación.</p>
+
+<h1 id="appa" class="page-break-before">Apéndice A. Tablas de probabilidad condicional</h1>
+<p>En cada fila, 1 significa «hipótesis presente» y 0 «hipótesis ausente». Las columnas contienen las probabilidades de observar el síntoma condicionadas al estado de sus padres.</p>
+
+    <h3>S1 · ¿El equipo no enciende o no muestra señales de energía?</h3>
+    <table>
+      <thead><tr><th>Estados de los padres</th><th>P(S1=sí | padres)</th><th>P(S1=no | padres)</th></tr></thead>
+      <tbody><tr><td>H1=0</td><td>0.02</td><td>0.98</td></tr><tr><td>H1=1</td><td>0.90</td><td>0.10</td></tr></tbody>
+    </table>
+    <h3>S2 · ¿El equipo se reinicia o se apaga de forma inesperada?</h3>
+    <table>
+      <thead><tr><th>Estados de los padres</th><th>P(S2=sí | padres)</th><th>P(S2=no | padres)</th></tr></thead>
+      <tbody><tr><td>H1=0, H2=0, H3=0</td><td>0.03</td><td>0.97</td></tr><tr><td>H1=1, H2=0, H3=0</td><td>0.48</td><td>0.52</td></tr><tr><td>H1=0, H2=1, H3=0</td><td>0.38</td><td>0.62</td></tr><tr><td>H1=0, H2=0, H3=1</td><td>0.62</td><td>0.38</td></tr><tr><td>H1=1, H2=1, H3=0</td><td>0.68</td><td>0.32</td></tr><tr><td>H1=1, H2=0, H3=1</td><td>0.78</td><td>0.22</td></tr><tr><td>H1=0, H2=1, H3=1</td><td>0.76</td><td>0.24</td></tr><tr><td>H1=1, H2=1, H3=1</td><td>0.90</td><td>0.10</td></tr></tbody>
+    </table>
+    <h3>S3 · ¿Se presentan pantallazos azules o errores críticos?</h3>
+    <table>
+      <thead><tr><th>Estados de los padres</th><th>P(S3=sí | padres)</th><th>P(S3=no | padres)</th></tr></thead>
+      <tbody><tr><td>H2=0, H4=0, H5=0</td><td>0.02</td><td>0.98</td></tr><tr><td>H2=1, H4=0, H5=0</td><td>0.58</td><td>0.42</td></tr><tr><td>H2=0, H4=1, H5=0</td><td>0.35</td><td>0.65</td></tr><tr><td>H2=0, H4=0, H5=1</td><td>0.65</td><td>0.35</td></tr><tr><td>H2=1, H4=1, H5=0</td><td>0.70</td><td>0.30</td></tr><tr><td>H2=1, H4=0, H5=1</td><td>0.82</td><td>0.18</td></tr><tr><td>H2=0, H4=1, H5=1</td><td>0.76</td><td>0.24</td></tr><tr><td>H2=1, H4=1, H5=1</td><td>0.92</td><td>0.08</td></tr></tbody>
+    </table>
+    <h3>S4 · ¿El equipo presenta lentitud notable durante su uso habitual?</h3>
+    <table>
+      <thead><tr><th>Estados de los padres</th><th>P(S4=sí | padres)</th><th>P(S4=no | padres)</th></tr></thead>
+      <tbody><tr><td>H3=0, H4=0, H5=0</td><td>0.05</td><td>0.95</td></tr><tr><td>H3=1, H4=0, H5=0</td><td>0.50</td><td>0.50</td></tr><tr><td>H3=0, H4=1, H5=0</td><td>0.65</td><td>0.35</td></tr><tr><td>H3=0, H4=0, H5=1</td><td>0.60</td><td>0.40</td></tr><tr><td>H3=1, H4=1, H5=0</td><td>0.78</td><td>0.22</td></tr><tr><td>H3=1, H4=0, H5=1</td><td>0.75</td><td>0.25</td></tr><tr><td>H3=0, H4=1, H5=1</td><td>0.85</td><td>0.15</td></tr><tr><td>H3=1, H4=1, H5=1</td><td>0.93</td><td>0.07</td></tr></tbody>
+    </table>
+    <h3>S5 · ¿Se detectan errores de lectura, escritura o sectores defectuosos?</h3>
+    <table>
+      <thead><tr><th>Estados de los padres</th><th>P(S5=sí | padres)</th><th>P(S5=no | padres)</th></tr></thead>
+      <tbody><tr><td>H4=0, H5=0</td><td>0.01</td><td>0.99</td></tr><tr><td>H4=1, H5=0</td><td>0.82</td><td>0.18</td></tr><tr><td>H4=0, H5=1</td><td>0.30</td><td>0.70</td></tr><tr><td>H4=1, H5=1</td><td>0.90</td><td>0.10</td></tr></tbody>
+    </table>
+    <h3>S6 · ¿El sistema operativo no inicia correctamente?</h3>
+    <table>
+      <thead><tr><th>Estados de los padres</th><th>P(S6=sí | padres)</th><th>P(S6=no | padres)</th></tr></thead>
+      <tbody><tr><td>H1=0, H4=0, H5=0</td><td>0.02</td><td>0.98</td></tr><tr><td>H1=1, H4=0, H5=0</td><td>0.20</td><td>0.80</td></tr><tr><td>H1=0, H4=1, H5=0</td><td>0.72</td><td>0.28</td></tr><tr><td>H1=0, H4=0, H5=1</td><td>0.80</td><td>0.20</td></tr><tr><td>H1=1, H4=1, H5=0</td><td>0.78</td><td>0.22</td></tr><tr><td>H1=1, H4=0, H5=1</td><td>0.85</td><td>0.15</td></tr><tr><td>H1=0, H4=1, H5=1</td><td>0.90</td><td>0.10</td></tr><tr><td>H1=1, H4=1, H5=1</td><td>0.95</td><td>0.05</td></tr></tbody>
+    </table>
+    <h3>S7 · ¿La temperatura es alta o los ventiladores funcionan de forma anormal?</h3>
+    <table>
+      <thead><tr><th>Estados de los padres</th><th>P(S7=sí | padres)</th><th>P(S7=no | padres)</th></tr></thead>
+      <tbody><tr><td>H3=0</td><td>0.08</td><td>0.92</td></tr><tr><td>H3=1</td><td>0.85</td><td>0.15</td></tr></tbody>
+    </table>
+    <h3>S8 · ¿Se escuchan pitidos de diagnóstico durante el arranque?</h3>
+    <table>
+      <thead><tr><th>Estados de los padres</th><th>P(S8=sí | padres)</th><th>P(S8=no | padres)</th></tr></thead>
+      <tbody><tr><td>H1=0, H2=0</td><td>0.01</td><td>0.99</td></tr><tr><td>H1=1, H2=0</td><td>0.35</td><td>0.65</td></tr><tr><td>H1=0, H2=1</td><td>0.75</td><td>0.25</td></tr><tr><td>H1=1, H2=1</td><td>0.85</td><td>0.15</td></tr></tbody>
+    </table>
+    <h3>S9 · ¿Aparecen archivos dañados o aplicaciones que se cierran inesperadamente?</h3>
+    <table>
+      <thead><tr><th>Estados de los padres</th><th>P(S9=sí | padres)</th><th>P(S9=no | padres)</th></tr></thead>
+      <tbody><tr><td>H4=0, H5=0</td><td>0.04</td><td>0.96</td></tr><tr><td>H4=1, H5=0</td><td>0.55</td><td>0.45</td></tr><tr><td>H4=0, H5=1</td><td>0.65</td><td>0.35</td></tr><tr><td>H4=1, H5=1</td><td>0.85</td><td>0.15</td></tr></tbody>
+    </table>
+    <h3>S10 · ¿El problema comenzó después de instalar o actualizar software?</h3>
+    <table>
+      <thead><tr><th>Estados de los padres</th><th>P(S10=sí | padres)</th><th>P(S10=no | padres)</th></tr></thead>
+      <tbody><tr><td>H5=0</td><td>0.08</td><td>0.92</td></tr><tr><td>H5=1</td><td>0.75</td><td>0.25</td></tr></tbody>
+    </table>
+</body>
+</html>

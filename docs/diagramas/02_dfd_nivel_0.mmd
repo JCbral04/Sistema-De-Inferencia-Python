@@ -1,0 +1,4 @@
+flowchart LR
+    U1["USUARIO DEL SISTEMA"] -->|Respuestas a síntomas| P(("0<br/>SISTEMA EXPERTO<br/>DE DIAGNÓSTICO"))
+    P -->|Preguntas sucesivas| U1
+    P -->|Cinco probabilidades posteriores| U2["USUARIO DEL SISTEMA"]

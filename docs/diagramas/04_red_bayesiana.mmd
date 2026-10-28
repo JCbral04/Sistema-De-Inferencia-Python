@@ -1,0 +1,37 @@
+flowchart LR
+    H1["H1 · Fuente de poder"]
+    H2["H2 · Memoria RAM"]
+    H3["H3 · Sobrecalentamiento"]
+    H4["H4 · Almacenamiento"]
+    H5["H5 · Sistema operativo"]
+    S1["S1 · No enciende"]
+    S2["S2 · Reinicios o apagados"]
+    S3["S3 · Pantallazos azules"]
+    S4["S4 · Lentitud"]
+    S5["S5 · Errores de disco"]
+    S6["S6 · No inicia el SO"]
+    S7["S7 · Temperatura anormal"]
+    S8["S8 · Pitidos"]
+    S9["S9 · Archivos dañados"]
+    S10["S10 · Cambio reciente de software"]
+    H1 --> S1
+    H1 --> S2
+    H2 --> S2
+    H3 --> S2
+    H2 --> S3
+    H4 --> S3
+    H5 --> S3
+    H3 --> S4
+    H4 --> S4
+    H5 --> S4
+    H4 --> S5
+    H5 --> S5
+    H1 --> S6
+    H4 --> S6
+    H5 --> S6
+    H3 --> S7
+    H1 --> S8
+    H2 --> S8
+    H4 --> S9
+    H5 --> S9
+    H5 --> S10
