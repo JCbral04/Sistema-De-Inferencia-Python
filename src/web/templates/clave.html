@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf %}
+{% block titulo %}Cambiar contraseña{% endblock %}
+{% block contenido %}
+<div class="tarjeta login">
+  <h1>Cambiar contraseña</h1>
+  <p class="sub">Use al menos 8 caracteres. Si ingresó con una cuenta de demostración, cámbiela ahora.</p>
+  <form method="post">{{ csrf() }}
+    <label for="actual">Contraseña actual</label>
+    <input id="actual" type="password" name="actual" autocomplete="current-password" required autofocus>
+    <label for="nueva">Contraseña nueva</label>
+    <input id="nueva" type="password" name="nueva" autocomplete="new-password" minlength="8" required>
+    <label for="confirmacion">Confirmar contraseña nueva</label>
+    <input id="confirmacion" type="password" name="confirmacion" autocomplete="new-password" minlength="8" required>
+    <div class="acciones"><button class="btn" type="submit">Guardar</button>
+      <a href="{{ url_for('publico.panel') }}">Cancelar</a></div>
+  </form>
+</div>
+{% endblock %}

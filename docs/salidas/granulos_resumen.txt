@@ -1,0 +1,35 @@
+
+== G5. Resumen de todos los gránulos: hipótesis, regla y número de premisas.
+hipotesis | nombre                                                             | regla | premisas
+----------+--------------------------------------------------------------------+-------+---------
+F01       | Falla del suministro eléctrico, del cable de poder o del cargador  | R01   | 3       
+F02       | Fuente de poder o cargador dañado                                  | R02   | 3       
+F03       | Botón de encendido o cableado frontal defectuoso                   | R03   | 3       
+F04       | Cortocircuito o placa madre dañada                                 | R04   | 3       
+F05       | Memoria RAM no detectada o mal asentada                            | R05   | 3       
+F06       | Tarjeta de video mal conectada o defectuosa                        | R06   | 3       
+F07       | BIOS/CMOS corrupta o batería CMOS agotada                          | R07   | 4       
+F08       | Falla del procesador o de la placa sin POST                        | R08   | 4       
+F09       | Monitor o cable de video defectuoso                                | R09   | 4       
+F10       | Disco duro con falla mecánica                                      | R10   | 7       
+F11       | Cable de datos o conector de almacenamiento defectuoso             | R11   | 7       
+F12       | Sector de arranque (MBR/BCD) dañado                                | R12   | 7       
+F13       | Actualización o controlador incompatible                           | R13   | 8       
+F14       | Sistema operativo corrupto                                         | R14   | 8       
+F15       | Acumulación de polvo u obstrucción de ventilación                  | R15   | 8       
+F16       | Pasta térmica degradada o ventilador/disipador defectuoso          | R16   | 8       
+F17       | Fuente de poder o cargador insuficiente o inestable bajo carga     | R17   | 8       
+F18       | Memoria RAM con errores intermitentes                              | R18   | 8       
+F19       | Disco con sectores defectuosos por desgaste                        | R19   | 9       
+F20       | Almacenamiento saturado o fragmentado                              | R20   | 9       
+F21       | Infección por malware                                              | R21   | 9       
+F22       | Memoria RAM insuficiente                                           | R22   | 10      
+F23       | Exceso de programas de inicio o falta de mantenimiento del sistema | R23   | 10      
+F24       | Falla del router o del proveedor de internet                       | R24   | 9       
+F25       | Controlador de red dañado o ausente                                | R25   | 10      
+F26       | Configuración de red incorrecta o adaptador defectuoso             | R26   | 10      
+F27       | Tarjeta gráfica o controlador de video defectuoso                  | R27   | 10      
+F28       | Panel o cable interno de video defectuoso                          | R28   | 10      
+F29       | Puertos USB o controlador USB defectuoso                           | R29   | 11      
+F30       | Periférico defectuoso                                              | R30   | 11      
+F31       | Falla no determinada                                               | R31   | 10      

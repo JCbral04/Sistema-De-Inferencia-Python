@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block titulo %}Reportes{% endblock %}
+{% block contenido %}
+<h1>Reportes</h1>
+<div class="rejilla">{% for e, n in por_estado.items() %}<div class="dato"><div class="n">{{ n }}</div><div class="e">{{ e|casos_por_estado(n) }}</div></div>{% endfor %}</div>
+<h2>Diagnósticos emitidos por falla</h2>
+{% if frecuencias %}
+<div class="tabla-scroll"><table>
+  <tr><th>Código</th><th>Falla</th><th>Emitidos</th><th>Confirmados</th><th>Rechazados</th><th>Tasa de confirmación</th></tr>
+  {% for f in frecuencias %}<tr><td>{{ f.codigo }}</td><td>{{ f.nombre }}</td><td>{{ f.total }}</td><td>{{ f.confirmados }}</td><td>{{ f.rechazados }}</td><td>{% if f.tasa_confirmacion is none %}—{% else %}{{ f.tasa_confirmacion|int }} %{% endif %}</td></tr>{% endfor %}
+</table></div>
+<p class="muted">La tasa de confirmación es el porcentaje de diagnósticos que el técnico validó como correctos, entre los ya validados.</p>
+{% else %}<p class="muted">Aún no hay diagnósticos.</p>{% endif %}
+{% endblock %}

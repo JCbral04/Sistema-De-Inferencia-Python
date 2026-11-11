@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% macro nodo(n) %}
+<li>
+  {% if n.rama %}<span class="rama {{ n.rama }}">{{ 'SÍ' if n.rama == 'si' else 'NO' }}</span>{% endif %}
+  {% if n.hoja %}<span class="hoja"><strong>{{ n.codigo }}</strong> {{ n.texto }} <span class="etiqueta {{ n.severidad }}">{{ n.severidad }}</span></span>
+  {% else %}<span><strong>{{ n.sintoma }}</strong> {{ n.texto }}</span>
+    <ul>{% for h in n.hijos %}{{ nodo(h) }}{% endfor %}</ul>{% endif %}
+</li>
+{% endmacro %}
+{% block titulo %}Árbol de decisión{% endblock %}
+{% block contenido %}
+<h1>Árbol de decisión</h1>
+<p class="sub">Cada hoja es una falla; cada camino de la raíz a una hoja es una regla. Las preguntas son los rectángulos y las
+  fallas, los de esquinas redondeadas; la rama Sí va a la izquierda y la No, a la derecha. Deja el cursor sobre un nodo
+  para leer la pregunta o la falla, o haz clic en una falla para ver su ficha.</p>
+<div class="tarjeta dibujo-arbol">
+  <svg viewBox="0 0 {{ dibujo.ancho }} {{ dibujo.alto }}" role="img" aria-label="Árbol de decisión completo con sus preguntas, ramas Sí y No, y fallas">
+    {% for x1, y1, x2, y2 in dibujo.lineas %}<line x1="{{ x1 }}" y1="{{ y1 }}" x2="{{ x2 }}" y2="{{ y2 }}"/>{% endfor %}
+    {% for r in dibujo.rotulos %}<text class="rot" x="{{ r.x }}" y="{{ r.y }}">{{ r.texto }}</text>{% endfor %}
+    {% for c in dibujo.cajas %}
+    {% if c.enlace %}<a href="{{ c.enlace }}">{% endif %}
+    <g class="nodo {{ 'hoja' if c.hoja else 'pregunta' }}">
+      <title>{{ c.titulo }}</title>
+      <rect x="{{ c.x }}" y="{{ c.y }}" width="{{ c.ancho }}" height="{{ c.alto }}" rx="{{ 7 if c.hoja else 0 }}"/>
+      <text x="{{ c.cx }}" y="{{ c.cy }}">{{ c.codigo }}</text>
+    </g>
+    {% if c.enlace %}</a>{% endif %}
+    {% endfor %}
+  </svg>
+</div>
+<details class="tarjeta">
+  <summary>Ver el árbol como lista</summary>
+  <ul class="arbol">{{ nodo(raiz) }}</ul>
+</details>
+{% endblock %}

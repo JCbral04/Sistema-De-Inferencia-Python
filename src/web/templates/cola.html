@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf, estado %}
+{% block titulo %}Cola de casos{% endblock %}
+{% block contenido %}
+<h1>Cola de casos</h1><p class="sub">Casos con diagnóstico del sistema experto que esperan un técnico.</p>
+{% if casos %}
+<div class="tabla-scroll"><table>
+  <tr><th>#</th><th>Equipo</th><th>Cliente</th><th>Problema</th><th></th></tr>
+  {% for c in casos %}
+  <tr><td>{{ c.id }}</td><td>{{ c.equipo }}</td><td>{{ c.cliente }}</td><td>{{ c.descripcion[:90] }}</td>
+    <td><div class="acciones" style="margin:0">
+      <a class="btn sec chico" href="{{ url_for('casos.detalle', caso_id=c.id) }}">Ver</a>
+      <form method="post" action="{{ url_for('tecnico.tomar', caso_id=c.id) }}" style="margin:0">{{ csrf() }}
+        <button class="btn chico" type="submit">Tomar caso</button></form></div></td></tr>
+  {% endfor %}
+</table></div>
+{% else %}<p class="muted">No hay casos esperando atención.</p>{% endif %}
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block titulo %}{{ h.codigo }}{% endblock %}
+{% block contenido %}
+<h1>{{ h.codigo }} · {{ h.nombre }}</h1>
+<p class="sub">{{ h.categoria }} · <span class="etiqueta {{ h.severidad }}">{{ h.severidad }}</span> · certeza {{ '%.0f'|format(h.factor_certeza * 100) }} % · fuente: {{ h.experto }}</p>
+<div class="tarjeta"><strong>Descripción</strong><p style="margin:4px 0 12px">{{ h.descripcion }}</p>
+  <strong>Solución recomendada</strong><p style="margin:4px 0 0">{{ h.solucion }}</p></div>
+<h2>Gránulo de conocimiento: reglas que sustentan la hipótesis</h2>
+{% for r in reglas %}
+<div class="tarjeta">
+  <div class="regla" style="margin-bottom:12px">{{ r.texto(h.codigo) }}</div>
+  <table><tr><th>#</th><th>Síntoma</th><th>Pregunta</th><th>Valor</th></tr>
+  {% for c in r.condiciones %}<tr><td>{{ loop.index }}</td><td>{{ c.sintoma_codigo }}</td><td>{{ c.pregunta }}</td><td><strong>{{ 'Sí' if c.valor == 'si' else 'No' }}</strong></td></tr>{% endfor %}
+  </table>
+</div>
+{% endfor %}
+<div class="acciones">
+  {% if usuario_actual.rol == 'Experto' %}<a class="btn" href="{{ url_for('conocimiento.hipotesis_editar', hipotesis_id=h.id) }}">Editar</a>{% endif %}
+  <a class="btn sec" href="{{ url_for('conocimiento.hipotesis_lista') }}">Volver</a>
+</div>
+{% endblock %}

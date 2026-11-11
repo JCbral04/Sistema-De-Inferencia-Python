@@ -1,0 +1,14 @@
+{% macro csrf() %}<input type="hidden" name="csrf" value="{{ csrf_token() }}">{% endmacro %}
+{% macro estado(valor) %}<span class="etiqueta {{ valor }}">{{ valor }}</span>{% endmacro %}
+{% macro tabla_casos(casos, vacio="No hay casos.") %}
+{% if casos %}
+<div class="tabla-scroll"><table>
+  <tr><th>#</th><th>Equipo</th><th>Cliente</th><th>Técnico</th><th>Estado</th><th>Abierto</th><th></th></tr>
+  {% for c in casos %}
+  <tr><td>{{ c.id }}</td><td>{{ c.equipo }}</td><td>{{ c.cliente }}</td><td>{{ c.tecnico or '—' }}</td>
+      <td>{{ estado(c.estado) }}</td><td>{{ c.abierto_en|fecha }}</td>
+      <td><a href="{{ url_for('casos.detalle', caso_id=c.id) }}">Ver</a></td></tr>
+  {% endfor %}
+</table></div>
+{% else %}<p class="muted">{{ vacio }}</p>{% endif %}
+{% endmacro %}

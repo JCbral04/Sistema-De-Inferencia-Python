@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% from "_macros.html" import tabla_casos %}
+{% block titulo %}Panel{% endblock %}
+{% block contenido %}
+<h1>Hola, {{ usuario_actual.nombre }}</h1>
+<p class="sub">Rol: {{ usuario_actual.rol }}</p>
+{% if usuario_actual.rol == 'Cliente' %}
+  <div class="rejilla">
+    <div class="dato"><div class="n">{{ equipos }}</div><div class="e">equipos registrados</div></div>
+  </div>
+  <div class="acciones" style="margin:0 0 18px">
+    <a class="btn" href="{{ url_for('cliente.caso_nuevo') }}">Abrir un caso</a>
+    <a class="btn sec" href="{{ url_for('cliente.equipo_form') }}">Registrar equipo</a>
+  </div>
+  <h2>Mis últimos casos</h2>{{ tabla_casos(casos, "Aún no tiene casos.") }}
+{% elif usuario_actual.rol == 'Técnico' %}
+  <div class="rejilla">
+    <div class="dato"><div class="n">{{ cola|length }}</div><div class="e">casos en cola</div></div>
+    <div class="dato"><div class="n">{{ mis_casos|length }}</div><div class="e">en atención por usted</div></div>
+  </div>
+  <h2>En atención</h2>{{ tabla_casos(mis_casos, "No tiene casos en atención.") }}
+{% elif usuario_actual.rol == 'Experto' %}
+  <div class="rejilla">
+    <div class="dato"><div class="n">{{ hipotesis }}</div><div class="e">hipótesis (fallas)</div></div>
+    <div class="dato"><div class="n">{{ hojas }}</div><div class="e">ramas del árbol</div></div>
+    <div class="dato"><div class="n">{{ reglas }}</div><div class="e">reglas</div></div>
+    <div class="dato"><div class="n">{{ sintomas }}</div><div class="e">preguntas (síntomas)</div></div>
+  </div>
+{% else %}
+  <div class="rejilla">
+    <div class="dato"><div class="n">{{ usuarios }}</div><div class="e">usuarios</div></div>
+    {% for estado, n in por_estado.items() %}
+    <div class="dato"><div class="n">{{ n }}</div><div class="e">{{ estado|casos_por_estado(n) }}</div></div>
+    {% endfor %}
+  </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf %}
+{% block titulo %}Equipo{% endblock %}
+{% block contenido %}
+<h1>{{ 'Editar equipo' if equipo else 'Registrar equipo' }}</h1>
+<div class="tarjeta form"><form method="post">{{ csrf() }}
+  <label for="tipo">Tipo</label>
+  <select id="tipo" name="tipo">{% for t in tipos %}<option {{ 'selected' if equipo and equipo.tipo == t }}>{{ t }}</option>{% endfor %}</select>
+  <label for="marca">Marca</label><input id="marca" type="text" name="marca" value="{{ equipo.marca if equipo else '' }}" required>
+  <label for="modelo">Modelo</label><input id="modelo" type="text" name="modelo" value="{{ equipo.modelo if equipo else '' }}" required>
+  <label for="serial">Serial (opcional)</label><input id="serial" type="text" name="serial" value="{{ (equipo.serial or '') if equipo else '' }}">
+  <div class="acciones"><button class="btn" type="submit">Guardar</button>
+    <a class="btn sec" href="{{ url_for('cliente.equipos') }}">Cancelar</a></div>
+</form></div>
+{% endblock %}

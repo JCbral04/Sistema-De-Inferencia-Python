@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block titulo %}Fallas{% endblock %}
+{% block contenido %}
+<h1>Hipótesis (fallas)</h1><p class="sub">Base de conocimiento organizada por categoría. Cada falla es una hoja del árbol de decisión.</p>
+{% for categoria, lista in grupos %}
+  <h2>{{ categoria.codigo }} · {{ categoria.nombre }}</h2>
+  <div class="tabla-scroll"><table>
+    <tr><th>Código</th><th>Falla</th><th>Severidad</th><th>Certeza</th><th></th></tr>
+    {% for h in lista %}
+    <tr><td>{{ h.codigo }}</td><td>{{ h.nombre }}</td><td><span class="etiqueta {{ h.severidad }}">{{ h.severidad }}</span></td>
+        <td>{{ '%.0f'|format(h.factor_certeza * 100) }} %</td>
+        <td><a href="{{ url_for('conocimiento.hipotesis_detalle', hipotesis_id=h.id) }}">Ver gránulo</a></td></tr>
+    {% endfor %}
+  </table></div>
+{% endfor %}
+{% endblock %}

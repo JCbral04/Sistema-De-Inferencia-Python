@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf %}
+{% block titulo %}Mis equipos{% endblock %}
+{% block contenido %}
+<h1>Mis equipos</h1><p class="sub">Equipos sobre los que puede abrir casos de diagnóstico.</p>
+<div class="acciones" style="margin:0 0 16px"><a class="btn" href="{{ url_for('cliente.equipo_form') }}">Registrar equipo</a></div>
+{% if equipos %}
+<div class="tabla-scroll"><table>
+  <tr><th>Tipo</th><th>Marca</th><th>Modelo</th><th>Serial</th><th></th></tr>
+  {% for e in equipos %}
+  <tr><td>{{ e.tipo }}</td><td>{{ e.marca }}</td><td>{{ e.modelo }}</td><td>{{ e.serial or '—' }}</td>
+    <td><div class="acciones" style="margin:0">
+      <a class="btn sec chico" href="{{ url_for('cliente.equipo_form', equipo_id=e.id) }}">Editar</a>
+      <form method="post" action="{{ url_for('cliente.equipo_eliminar', equipo_id=e.id) }}" style="margin:0"
+            onsubmit="return confirm('¿Eliminar este equipo?')">{{ csrf() }}
+        <button class="btn peligro chico" type="submit">Eliminar</button></form></div></td></tr>
+  {% endfor %}
+</table></div>
+{% else %}<p class="muted">Aún no ha registrado equipos.</p>{% endif %}
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block titulo %}Reglas{% endblock %}
+{% block contenido %}
+<h1>Reglas del sistema experto</h1><p class="sub">Derivadas del árbol de decisión: una regla por cada camino raíz-hoja.</p>
+<div class="tabla-scroll"><table>
+  <tr><th>Regla</th><th>Conclusión</th><th>Premisas y conclusión</th></tr>
+  {% for r in reglas %}{% set h = hipotesis[r.hipotesis_id] %}
+  <tr><td>{{ r.codigo }}</td><td>{{ h.codigo }} · {{ h.nombre }}</td><td><div class="regla">{{ r.texto(h.codigo) }}</div></td></tr>
+  {% endfor %}
+</table></div>
+{% endblock %}

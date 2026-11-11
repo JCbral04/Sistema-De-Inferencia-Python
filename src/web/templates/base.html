@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block titulo %}Sistema experto{% endblock %} · Diagnóstico de fallas de PC</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='estilo.css') }}">
+</head>
+<body>
+<header class="nav"><div class="barra">
+  <a class="marca" href="{{ url_for('publico.inicio') }}">Diagnóstico de PC</a>
+  {% if usuario_actual %}
+  <nav>
+    <a href="{{ url_for('publico.panel') }}">Panel</a>
+    {% set rol = usuario_actual.rol %}
+    {% if rol == 'Cliente' %}
+      <a href="{{ url_for('cliente.equipos') }}">Mis equipos</a>
+      <a href="{{ url_for('casos.lista') }}">Mis casos</a>
+      <a href="{{ url_for('cliente.caso_nuevo') }}">Nuevo caso</a>
+    {% elif rol == 'Técnico' %}
+      <a href="{{ url_for('tecnico.cola') }}">Cola de casos</a>
+      <a href="{{ url_for('casos.lista') }}">Mis casos</a>
+    {% elif rol == 'Experto' %}
+      <a href="{{ url_for('conocimiento.hipotesis_lista') }}">Fallas</a>
+      <a href="{{ url_for('conocimiento.arbol') }}">Árbol</a>
+      <a href="{{ url_for('conocimiento.reglas') }}">Reglas</a>
+      <a href="{{ url_for('conocimiento.sintomas') }}">Preguntas</a>
+    {% elif rol == 'Administrador' %}
+      <a href="{{ url_for('admin.usuarios') }}">Usuarios</a>
+      <a href="{{ url_for('casos.lista') }}">Casos</a>
+      <a href="{{ url_for('conocimiento.hipotesis_lista') }}">Conocimiento</a>
+      <a href="{{ url_for('admin.reportes') }}">Reportes</a>
+    {% endif %}
+  </nav>
+  <div class="sesion">
+    <span>{{ usuario_actual.nombre }}</span><span class="rol">{{ usuario_actual.rol }}</span>
+    <a class="enlace-sesion" href="{{ url_for('cuenta.clave') }}">Contraseña</a>
+    <form method="post" action="{{ url_for('publico.logout') }}" style="margin:0">
+      <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      <button class="btn sec chico" type="submit">Salir</button>
+    </form>
+  </div>
+  {% endif %}
+</div></header>
+<main>
+  {% with mensajes = get_flashed_messages(with_categories=true) %}
+    {% for categoria, texto in mensajes %}<div class="flash {{ categoria }}">{{ texto }}</div>{% endfor %}
+  {% endwith %}
+  {% block contenido %}{% endblock %}
+</main>
+</body>
+</html>

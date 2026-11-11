@@ -1,0 +1,828 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="648pt" height="356.4pt" viewBox="0 0 648 356.4" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-11-10T22:31:27.462414</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.2, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 356.4 
+L 648 356.4 
+L 648 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 5.76 25.56 
+L 286.56 25.56 
+L 286.56 6.12 
+L 5.76 6.12 
+z
+" clip-path="url(#pcafc3ba966)" style="fill: #ffffff; stroke: #000000; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 5.76 57.6 
+L 286.56 57.6 
+L 286.56 38.16 
+L 5.76 38.16 
+z
+" clip-path="url(#pcafc3ba966)" style="fill: #ffffff; stroke: #000000; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 5.76 89.64 
+L 286.56 89.64 
+L 286.56 70.2 
+L 5.76 70.2 
+z
+" clip-path="url(#pcafc3ba966)" style="fill: #ffffff; stroke: #000000; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 5.76 121.68 
+L 286.56 121.68 
+L 286.56 102.24 
+L 5.76 102.24 
+z
+" clip-path="url(#pcafc3ba966)" style="fill: #ffffff; stroke: #000000; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_6">
+    <path d="M 5.76 153.72 
+L 286.56 153.72 
+L 286.56 134.28 
+L 5.76 134.28 
+z
+" clip-path="url(#pcafc3ba966)" style="fill: #ffffff; stroke: #000000; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_7">
+    <path d="M 5.76 185.76 
+L 286.56 185.76 
+L 286.56 166.32 
+L 5.76 166.32 
+z
+" clip-path="url(#pcafc3ba966)" style="fill: #ffffff; stroke: #000000; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_8">
+    <path d="M 5.76 217.8 
+L 286.56 217.8 
+L 286.56 198.36 
+L 5.76 198.36 
+z
+" clip-path="url(#pcafc3ba966)" style="fill: #ffffff; stroke: #000000; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_9">
+    <path d="M 5.76 249.84 
+L 286.56 249.84 
+L 286.56 230.4 
+L 5.76 230.4 
+z
+" clip-path="url(#pcafc3ba966)" style="fill: #ffffff; stroke: #000000; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_10">
+    <path d="M 5.76 281.88 
+L 286.56 281.88 
+L 286.56 262.44 
+L 5.76 262.44 
+z
+" clip-path="url(#pcafc3ba966)" style="fill: #ffffff; stroke: #000000; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_11">
+    <path d="M 5.76 313.92 
+L 286.56 313.92 
+L 286.56 294.48 
+L 5.76 294.48 
+z
+" clip-path="url(#pcafc3ba966)" style="fill: #ffffff; stroke: #000000; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_12">
+    <path d="M 363.6 25.56 
+L 642.24 25.56 
+L 642.24 6.12 
+L 363.6 6.12 
+z
+" clip-path="url(#pcafc3ba966)" style="fill: #ffffff; stroke: #000000; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_13">
+    <path d="M 366.48 22.68 
+L 639.36 22.68 
+L 639.36 9 
+L 366.48 9 
+L 366.48 22.68 
+z
+" clip-path="url(#pcafc3ba966)" style="fill: none; stroke: #000000; stroke-width: 0.8; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_14">
+    <path d="M 363.6 57.6 
+L 642.24 57.6 
+L 642.24 38.16 
+L 363.6 38.16 
+z
+" clip-path="url(#pcafc3ba966)" style="fill: #ffffff; stroke: #000000; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_15">
+    <path d="M 366.48 54.72 
+L 639.36 54.72 
+L 639.36 41.04 
+L 366.48 41.04 
+L 366.48 54.72 
+z
+" clip-path="url(#pcafc3ba966)" style="fill: none; stroke: #000000; stroke-width: 0.8; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_16">
+    <path d="M 363.6 89.64 
+L 642.24 89.64 
+L 642.24 70.2 
+L 363.6 70.2 
+z
+" clip-path="url(#pcafc3ba966)" style="fill: #ffffff; stroke: #000000; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_17">
+    <path d="M 366.48 86.76 
+L 639.36 86.76 
+L 639.36 73.08 
+L 366.48 73.08 
+L 366.48 86.76 
+z
+" clip-path="url(#pcafc3ba966)" style="fill: none; stroke: #000000; stroke-width: 0.8; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_18">
+    <path d="M 370.8 121.68 
+L 635.04 121.68 
+Q 642.24 121.68 642.24 114.48 
+L 642.24 109.44 
+Q 642.24 102.24 635.04 102.24 
+L 370.8 102.24 
+Q 363.6 102.24 363.6 109.44 
+L 363.6 114.48 
+Q 363.6 121.68 370.8 121.68 
+z
+" clip-path="url(#pcafc3ba966)" style="fill: #ffffff; stroke: #000000; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_19">
+    <path d="M 363.6 153.72 
+L 642.24 153.72 
+L 642.24 134.28 
+L 363.6 134.28 
+z
+" clip-path="url(#pcafc3ba966)" style="fill: #ffffff; stroke: #000000; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_20">
+    <path d="M 366.48 150.84 
+L 639.36 150.84 
+L 639.36 137.16 
+L 366.48 137.16 
+L 366.48 150.84 
+z
+" clip-path="url(#pcafc3ba966)" style="fill: none; stroke: #000000; stroke-width: 0.8; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_21">
+    <path d="M 363.6 185.76 
+L 642.24 185.76 
+L 642.24 166.32 
+L 363.6 166.32 
+z
+" clip-path="url(#pcafc3ba966)" style="fill: #ffffff; stroke: #000000; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_22">
+    <path d="M 366.48 182.88 
+L 639.36 182.88 
+L 639.36 169.2 
+L 366.48 169.2 
+L 366.48 182.88 
+z
+" clip-path="url(#pcafc3ba966)" style="fill: none; stroke: #000000; stroke-width: 0.8; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_23">
+    <path d="M 363.6 217.8 
+L 642.24 217.8 
+L 642.24 198.36 
+L 363.6 198.36 
+z
+" clip-path="url(#pcafc3ba966)" style="fill: #ffffff; stroke: #000000; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_24">
+    <path d="M 366.48 214.92 
+L 639.36 214.92 
+L 639.36 201.24 
+L 366.48 201.24 
+L 366.48 214.92 
+z
+" clip-path="url(#pcafc3ba966)" style="fill: none; stroke: #000000; stroke-width: 0.8; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_25">
+    <path d="M 363.6 249.84 
+L 642.24 249.84 
+L 642.24 230.4 
+L 363.6 230.4 
+z
+" clip-path="url(#pcafc3ba966)" style="fill: #ffffff; stroke: #000000; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_26">
+    <path d="M 366.48 246.96 
+L 639.36 246.96 
+L 639.36 233.28 
+L 366.48 233.28 
+L 366.48 246.96 
+z
+" clip-path="url(#pcafc3ba966)" style="fill: none; stroke: #000000; stroke-width: 0.8; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_27">
+    <path d="M 363.6 281.88 
+L 642.24 281.88 
+L 642.24 262.44 
+L 363.6 262.44 
+z
+" clip-path="url(#pcafc3ba966)" style="fill: #ffffff; stroke: #000000; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_28">
+    <path d="M 366.48 279 
+L 639.36 279 
+L 639.36 265.32 
+L 366.48 265.32 
+L 366.48 279 
+z
+" clip-path="url(#pcafc3ba966)" style="fill: none; stroke: #000000; stroke-width: 0.8; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_29">
+    <path d="M 363.6 305.28 
+L 642.24 305.28 
+L 642.24 287.28 
+L 363.6 287.28 
+z
+" clip-path="url(#pcafc3ba966)" style="fill: #ffffff; stroke: #000000; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_30">
+    <path d="M 366.48 302.4 
+L 639.36 302.4 
+L 639.36 290.16 
+L 366.48 290.16 
+L 366.48 302.4 
+z
+" clip-path="url(#pcafc3ba966)" style="fill: none; stroke: #000000; stroke-width: 0.8; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_31">
+    <path d="M 370.8 326.88 
+L 635.04 326.88 
+Q 642.24 326.88 642.24 319.68 
+L 642.24 316.08 
+Q 642.24 308.88 635.04 308.88 
+L 370.8 308.88 
+Q 363.6 308.88 363.6 316.08 
+L 363.6 319.68 
+Q 363.6 326.88 370.8 326.88 
+z
+" clip-path="url(#pcafc3ba966)" style="fill: #ffffff; stroke: #000000; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_32">
+    <path d="M 7.2 350.64 
+L 27.36 350.64 
+L 27.36 337.68 
+L 7.2 337.68 
+z
+" clip-path="url(#pcafc3ba966)" style="fill: #ffffff; stroke: #000000; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_33">
+    <path d="M 165.6 350.64 
+L 185.76 350.64 
+L 185.76 337.68 
+L 165.6 337.68 
+z
+" clip-path="url(#pcafc3ba966)" style="fill: #ffffff; stroke: #000000; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_34">
+    <path d="M 168.48 347.76 
+L 182.88 347.76 
+L 182.88 340.56 
+L 168.48 340.56 
+L 168.48 347.76 
+z
+" clip-path="url(#pcafc3ba966)" style="fill: none; stroke: #000000; stroke-width: 0.8; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_35">
+    <path d="M 370.8 350.64 
+L 376.56 350.64 
+Q 383.76 350.64 383.76 343.44 
+L 383.76 344.88 
+Q 383.76 337.68 376.56 337.68 
+L 370.8 337.68 
+Q 363.6 337.68 363.6 344.88 
+L 363.6 343.44 
+Q 363.6 350.64 370.8 350.64 
+z
+" clip-path="url(#pcafc3ba966)" style="fill: #ffffff; stroke: #000000; stroke-linejoin: miter"/>
+   </g>
+   <g id="text_1">
+    <text style="font-size: 8.8px; font-family: 'Liberation Sans', 'DejaVu Sans'; text-anchor: start" x="12.96" y="18.117344" transform="rotate(-0 12.96 18.117344)">N01 · S01   Enciende de forma sostenida</text>
+   </g>
+   <g id="text_2">
+    <text style="font-size: 8.8px; font-family: 'Liberation Sans', 'DejaVu Sans'; text-anchor: start" x="12.96" y="50.194211" transform="rotate(-0 12.96 50.194211)">N05 · S05   Pitidos de error o luces de diagnóstico</text>
+   </g>
+   <g id="text_3">
+    <text style="font-size: 8.8px; font-family: 'Liberation Sans', 'DejaVu Sans'; text-anchor: start" x="12.96" y="82.197344" transform="rotate(-0 12.96 82.197344)">N07 · S07   Muestra imagen al arrancar</text>
+   </g>
+   <g id="text_4">
+    <text style="font-size: 8.8px; font-family: 'Liberation Sans', 'DejaVu Sans'; text-anchor: start" x="12.96" y="114.237344" transform="rotate(-0 12.96 114.237344)">N09 · S09   Error de BIOS/CMOS</text>
+   </g>
+   <g id="text_5">
+    <text style="font-size: 8.8px; font-family: 'Liberation Sans', 'DejaVu Sans'; text-anchor: start" x="12.96" y="146.277344" transform="rotate(-0 12.96 146.277344)">N10 · S10   Carga el sistema operativo</text>
+   </g>
+   <g id="text_6">
+    <text style="font-size: 8.8px; font-family: 'Liberation Sans', 'DejaVu Sans'; text-anchor: start" x="12.96" y="178.317344" transform="rotate(-0 12.96 178.317344)">N15 · S15   Se apaga o reinicia solo</text>
+   </g>
+   <g id="text_7">
+    <text style="font-size: 8.8px; font-family: 'Liberation Sans', 'DejaVu Sans'; text-anchor: start" x="12.96" y="210.357344" transform="rotate(-0 12.96 210.357344)">N19 · S19   Lentitud notable</text>
+   </g>
+   <g id="text_8">
+    <text style="font-size: 8.8px; font-family: 'Liberation Sans', 'DejaVu Sans'; text-anchor: start" x="12.96" y="242.397344" transform="rotate(-0 12.96 242.397344)">N24 · S24   Problemas para conectarse a internet</text>
+   </g>
+   <g id="text_9">
+    <text style="font-size: 8.8px; font-family: 'Liberation Sans', 'DejaVu Sans'; text-anchor: start" x="12.96" y="274.437344" transform="rotate(-0 12.96 274.437344)">N27 · S27   Fallas de imagen</text>
+   </g>
+   <g id="text_10">
+    <text style="font-size: 8.8px; font-family: 'Liberation Sans', 'DejaVu Sans'; text-anchor: start" x="12.96" y="306.514211" transform="rotate(-0 12.96 306.514211)">N29 · S29   Periférico no reconocido</text>
+   </g>
+   <g id="patch_36">
+    <path d="M 27.36 25.56 
+Q 27.36 31.86 27.36 37.041966 
+" style="fill: none; stroke: #000000; stroke-linecap: round"/>
+    <path d="M 29.16 33.441966 
+L 27.36 37.041966 
+L 25.56 33.441966 
+z
+" style="stroke: #000000; stroke-linecap: round"/>
+   </g>
+   <g id="text_11">
+    <g id="patch_37">
+     <path d="M 42.306687 37.082164 
+L 52.733312 37.082164 
+L 52.733312 26.637836 
+L 42.306687 26.637836 
+z
+" style="fill: #ffffff"/>
+    </g>
+    <text style="font-size: 8.8px; font-family: 'Liberation Sans', 'DejaVu Sans'; text-anchor: middle" x="47.52" y="34.174211" transform="rotate(-0 47.52 34.174211)">Sí</text>
+   </g>
+   <g id="text_12">
+    <text style="font-size: 8.8px; font-family: 'Liberation Sans', 'DejaVu Sans'; text-anchor: start" x="370.8" y="18.117344" transform="rotate(-0 370.8 18.117344)">N02 · Equipo sin encendido  (F01–F04)</text>
+   </g>
+   <g id="patch_38">
+    <path d="M 286.56 15.84 
+Q 325.08 15.84 362.481966 15.84 
+" style="fill: none; stroke: #000000; stroke-linecap: round"/>
+    <path d="M 358.881966 14.04 
+L 362.481966 15.84 
+L 358.881966 17.64 
+z
+" style="stroke: #000000; stroke-linecap: round"/>
+   </g>
+   <g id="text_13">
+    <g id="patch_39">
+     <path d="M 318.399563 21.025297 
+L 331.760437 21.025297 
+L 331.760437 10.654703 
+L 318.399563 10.654703 
+z
+" style="fill: #ffffff"/>
+    </g>
+    <text style="font-size: 8.8px; font-family: 'Liberation Sans', 'DejaVu Sans'; text-anchor: middle" x="325.08" y="18.117344" transform="rotate(-0 325.08 18.117344)">No</text>
+   </g>
+   <g id="patch_40">
+    <path d="M 27.36 57.6 
+Q 27.36 63.9 27.36 69.081966 
+" style="fill: none; stroke: #000000; stroke-linecap: round"/>
+    <path d="M 29.16 65.481966 
+L 27.36 69.081966 
+L 25.56 65.481966 
+z
+" style="stroke: #000000; stroke-linecap: round"/>
+   </g>
+   <g id="text_14">
+    <g id="patch_41">
+     <path d="M 40.839562 69.085297 
+L 54.200437 69.085297 
+L 54.200437 58.714703 
+L 40.839562 58.714703 
+z
+" style="fill: #ffffff"/>
+    </g>
+    <text style="font-size: 8.8px; font-family: 'Liberation Sans', 'DejaVu Sans'; text-anchor: middle" x="47.52" y="66.177344" transform="rotate(-0 47.52 66.177344)">No</text>
+   </g>
+   <g id="text_15">
+    <text style="font-size: 8.8px; font-family: 'Liberation Sans', 'DejaVu Sans'; text-anchor: start" x="370.8" y="50.157344" transform="rotate(-0 370.8 50.157344)">N06 · Pitidos largos o continuos  (F05–F06)</text>
+   </g>
+   <g id="patch_42">
+    <path d="M 286.56 47.88 
+Q 325.08 47.88 362.481966 47.88 
+" style="fill: none; stroke: #000000; stroke-linecap: round"/>
+    <path d="M 358.881966 46.08 
+L 362.481966 47.88 
+L 358.881966 49.68 
+z
+" style="stroke: #000000; stroke-linecap: round"/>
+   </g>
+   <g id="text_16">
+    <g id="patch_43">
+     <path d="M 319.866688 53.102164 
+L 330.293313 53.102164 
+L 330.293313 42.657836 
+L 319.866688 42.657836 
+z
+" style="fill: #ffffff"/>
+    </g>
+    <text style="font-size: 8.8px; font-family: 'Liberation Sans', 'DejaVu Sans'; text-anchor: middle" x="325.08" y="50.194211" transform="rotate(-0 325.08 50.194211)">Sí</text>
+   </g>
+   <g id="patch_44">
+    <path d="M 27.36 89.64 
+Q 27.36 95.94 27.36 101.121966 
+" style="fill: none; stroke: #000000; stroke-linecap: round"/>
+    <path d="M 29.16 97.521966 
+L 27.36 101.121966 
+L 25.56 97.521966 
+z
+" style="stroke: #000000; stroke-linecap: round"/>
+   </g>
+   <g id="text_17">
+    <g id="patch_45">
+     <path d="M 42.306687 101.162164 
+L 52.733312 101.162164 
+L 52.733312 90.717836 
+L 42.306687 90.717836 
+z
+" style="fill: #ffffff"/>
+    </g>
+    <text style="font-size: 8.8px; font-family: 'Liberation Sans', 'DejaVu Sans'; text-anchor: middle" x="47.52" y="98.254211" transform="rotate(-0 47.52 98.254211)">Sí</text>
+   </g>
+   <g id="text_18">
+    <text style="font-size: 8.8px; font-family: 'Liberation Sans', 'DejaVu Sans'; text-anchor: start" x="370.8" y="82.197344" transform="rotate(-0 370.8 82.197344)">N08 · Sin imagen en pantalla  (F08–F09)</text>
+   </g>
+   <g id="patch_46">
+    <path d="M 286.56 79.92 
+Q 325.08 79.92 362.481966 79.92 
+" style="fill: none; stroke: #000000; stroke-linecap: round"/>
+    <path d="M 358.881966 78.12 
+L 362.481966 79.92 
+L 358.881966 81.72 
+z
+" style="stroke: #000000; stroke-linecap: round"/>
+   </g>
+   <g id="text_19">
+    <g id="patch_47">
+     <path d="M 318.399563 85.105297 
+L 331.760437 85.105297 
+L 331.760437 74.734703 
+L 318.399563 74.734703 
+z
+" style="fill: #ffffff"/>
+    </g>
+    <text style="font-size: 8.8px; font-family: 'Liberation Sans', 'DejaVu Sans'; text-anchor: middle" x="325.08" y="82.197344" transform="rotate(-0 325.08 82.197344)">No</text>
+   </g>
+   <g id="patch_48">
+    <path d="M 27.36 121.68 
+Q 27.36 127.98 27.36 133.161966 
+" style="fill: none; stroke: #000000; stroke-linecap: round"/>
+    <path d="M 29.16 129.561966 
+L 27.36 133.161966 
+L 25.56 129.561966 
+z
+" style="stroke: #000000; stroke-linecap: round"/>
+   </g>
+   <g id="text_20">
+    <g id="patch_49">
+     <path d="M 40.839562 133.165297 
+L 54.200437 133.165297 
+L 54.200437 122.794703 
+L 40.839562 122.794703 
+z
+" style="fill: #ffffff"/>
+    </g>
+    <text style="font-size: 8.8px; font-family: 'Liberation Sans', 'DejaVu Sans'; text-anchor: middle" x="47.52" y="130.257344" transform="rotate(-0 47.52 130.257344)">No</text>
+   </g>
+   <g id="text_21">
+    <text style="font-size: 8.8px; font-family: 'Liberation Sans', 'DejaVu Sans'; text-anchor: start" x="370.8" y="114.274211" transform="rotate(-0 370.8 114.274211)">F07  BIOS/CMOS corrupta o batería CMOS agotada</text>
+   </g>
+   <g id="patch_50">
+    <path d="M 286.56 111.96 
+Q 325.08 111.96 362.481966 111.96 
+" style="fill: none; stroke: #000000; stroke-linecap: round"/>
+    <path d="M 358.881966 110.16 
+L 362.481966 111.96 
+L 358.881966 113.76 
+z
+" style="stroke: #000000; stroke-linecap: round"/>
+   </g>
+   <g id="text_22">
+    <g id="patch_51">
+     <path d="M 319.866688 117.182164 
+L 330.293313 117.182164 
+L 330.293313 106.737836 
+L 319.866688 106.737836 
+z
+" style="fill: #ffffff"/>
+    </g>
+    <text style="font-size: 8.8px; font-family: 'Liberation Sans', 'DejaVu Sans'; text-anchor: middle" x="325.08" y="114.274211" transform="rotate(-0 325.08 114.274211)">Sí</text>
+   </g>
+   <g id="patch_52">
+    <path d="M 27.36 153.72 
+Q 27.36 160.02 27.36 165.201966 
+" style="fill: none; stroke: #000000; stroke-linecap: round"/>
+    <path d="M 29.16 161.601966 
+L 27.36 165.201966 
+L 25.56 161.601966 
+z
+" style="stroke: #000000; stroke-linecap: round"/>
+   </g>
+   <g id="text_23">
+    <g id="patch_53">
+     <path d="M 42.306687 165.242164 
+L 52.733312 165.242164 
+L 52.733312 154.797836 
+L 42.306687 154.797836 
+z
+" style="fill: #ffffff"/>
+    </g>
+    <text style="font-size: 8.8px; font-family: 'Liberation Sans', 'DejaVu Sans'; text-anchor: middle" x="47.52" y="162.334211" transform="rotate(-0 47.52 162.334211)">Sí</text>
+   </g>
+   <g id="text_24">
+    <text style="font-size: 8.8px; font-family: 'Liberation Sans', 'DejaVu Sans'; text-anchor: start" x="370.8" y="146.277344" transform="rotate(-0 370.8 146.277344)">N11 · El sistema operativo no carga  (F10–F14)</text>
+   </g>
+   <g id="patch_54">
+    <path d="M 286.56 144 
+Q 325.08 144 362.481966 144 
+" style="fill: none; stroke: #000000; stroke-linecap: round"/>
+    <path d="M 358.881966 142.2 
+L 362.481966 144 
+L 358.881966 145.8 
+z
+" style="stroke: #000000; stroke-linecap: round"/>
+   </g>
+   <g id="text_25">
+    <g id="patch_55">
+     <path d="M 318.399563 149.185297 
+L 331.760437 149.185297 
+L 331.760437 138.814703 
+L 318.399563 138.814703 
+z
+" style="fill: #ffffff"/>
+    </g>
+    <text style="font-size: 8.8px; font-family: 'Liberation Sans', 'DejaVu Sans'; text-anchor: middle" x="325.08" y="146.277344" transform="rotate(-0 325.08 146.277344)">No</text>
+   </g>
+   <g id="patch_56">
+    <path d="M 27.36 185.76 
+Q 27.36 192.06 27.36 197.241966 
+" style="fill: none; stroke: #000000; stroke-linecap: round"/>
+    <path d="M 29.16 193.641966 
+L 27.36 197.241966 
+L 25.56 193.641966 
+z
+" style="stroke: #000000; stroke-linecap: round"/>
+   </g>
+   <g id="text_26">
+    <g id="patch_57">
+     <path d="M 40.839562 197.245297 
+L 54.200437 197.245297 
+L 54.200437 186.874703 
+L 40.839562 186.874703 
+z
+" style="fill: #ffffff"/>
+    </g>
+    <text style="font-size: 8.8px; font-family: 'Liberation Sans', 'DejaVu Sans'; text-anchor: middle" x="47.52" y="194.337344" transform="rotate(-0 47.52 194.337344)">No</text>
+   </g>
+   <g id="text_27">
+    <text style="font-size: 8.8px; font-family: 'Liberation Sans', 'DejaVu Sans'; text-anchor: start" x="370.8" y="178.317344" transform="rotate(-0 370.8 178.317344)">N16 · Apagados y reinicios repentinos  (F15–F18)</text>
+   </g>
+   <g id="patch_58">
+    <path d="M 286.56 176.04 
+Q 325.08 176.04 362.481966 176.04 
+" style="fill: none; stroke: #000000; stroke-linecap: round"/>
+    <path d="M 358.881966 174.24 
+L 362.481966 176.04 
+L 358.881966 177.84 
+z
+" style="stroke: #000000; stroke-linecap: round"/>
+   </g>
+   <g id="text_28">
+    <g id="patch_59">
+     <path d="M 319.866688 181.262164 
+L 330.293313 181.262164 
+L 330.293313 170.817836 
+L 319.866688 170.817836 
+z
+" style="fill: #ffffff"/>
+    </g>
+    <text style="font-size: 8.8px; font-family: 'Liberation Sans', 'DejaVu Sans'; text-anchor: middle" x="325.08" y="178.354211" transform="rotate(-0 325.08 178.354211)">Sí</text>
+   </g>
+   <g id="patch_60">
+    <path d="M 27.36 217.8 
+Q 27.36 224.1 27.36 229.281966 
+" style="fill: none; stroke: #000000; stroke-linecap: round"/>
+    <path d="M 29.16 225.681966 
+L 27.36 229.281966 
+L 25.56 225.681966 
+z
+" style="stroke: #000000; stroke-linecap: round"/>
+   </g>
+   <g id="text_29">
+    <g id="patch_61">
+     <path d="M 40.839562 229.285297 
+L 54.200437 229.285297 
+L 54.200437 218.914703 
+L 40.839562 218.914703 
+z
+" style="fill: #ffffff"/>
+    </g>
+    <text style="font-size: 8.8px; font-family: 'Liberation Sans', 'DejaVu Sans'; text-anchor: middle" x="47.52" y="226.377344" transform="rotate(-0 47.52 226.377344)">No</text>
+   </g>
+   <g id="text_30">
+    <text style="font-size: 8.8px; font-family: 'Liberation Sans', 'DejaVu Sans'; text-anchor: start" x="370.8" y="210.357344" transform="rotate(-0 370.8 210.357344)">N20 · Lentitud del equipo  (F19–F23)</text>
+   </g>
+   <g id="patch_62">
+    <path d="M 286.56 208.08 
+Q 325.08 208.08 362.481966 208.08 
+" style="fill: none; stroke: #000000; stroke-linecap: round"/>
+    <path d="M 358.881966 206.28 
+L 362.481966 208.08 
+L 358.881966 209.88 
+z
+" style="stroke: #000000; stroke-linecap: round"/>
+   </g>
+   <g id="text_31">
+    <g id="patch_63">
+     <path d="M 319.866688 213.302164 
+L 330.293313 213.302164 
+L 330.293313 202.857836 
+L 319.866688 202.857836 
+z
+" style="fill: #ffffff"/>
+    </g>
+    <text style="font-size: 8.8px; font-family: 'Liberation Sans', 'DejaVu Sans'; text-anchor: middle" x="325.08" y="210.394211" transform="rotate(-0 325.08 210.394211)">Sí</text>
+   </g>
+   <g id="patch_64">
+    <path d="M 27.36 249.84 
+Q 27.36 256.14 27.36 261.321966 
+" style="fill: none; stroke: #000000; stroke-linecap: round"/>
+    <path d="M 29.16 257.721966 
+L 27.36 261.321966 
+L 25.56 257.721966 
+z
+" style="stroke: #000000; stroke-linecap: round"/>
+   </g>
+   <g id="text_32">
+    <g id="patch_65">
+     <path d="M 40.839562 261.325297 
+L 54.200437 261.325297 
+L 54.200437 250.954703 
+L 40.839562 250.954703 
+z
+" style="fill: #ffffff"/>
+    </g>
+    <text style="font-size: 8.8px; font-family: 'Liberation Sans', 'DejaVu Sans'; text-anchor: middle" x="47.52" y="258.417344" transform="rotate(-0 47.52 258.417344)">No</text>
+   </g>
+   <g id="text_33">
+    <text style="font-size: 8.8px; font-family: 'Liberation Sans', 'DejaVu Sans'; text-anchor: start" x="370.8" y="242.434211" transform="rotate(-0 370.8 242.434211)">N25 · Problemas de conexión a internet  (F24–F26)</text>
+   </g>
+   <g id="patch_66">
+    <path d="M 286.56 240.12 
+Q 325.08 240.12 362.481966 240.12 
+" style="fill: none; stroke: #000000; stroke-linecap: round"/>
+    <path d="M 358.881966 238.32 
+L 362.481966 240.12 
+L 358.881966 241.92 
+z
+" style="stroke: #000000; stroke-linecap: round"/>
+   </g>
+   <g id="text_34">
+    <g id="patch_67">
+     <path d="M 319.866688 245.342164 
+L 330.293313 245.342164 
+L 330.293313 234.897836 
+L 319.866688 234.897836 
+z
+" style="fill: #ffffff"/>
+    </g>
+    <text style="font-size: 8.8px; font-family: 'Liberation Sans', 'DejaVu Sans'; text-anchor: middle" x="325.08" y="242.434211" transform="rotate(-0 325.08 242.434211)">Sí</text>
+   </g>
+   <g id="patch_68">
+    <path d="M 27.36 281.88 
+Q 27.36 288.18 27.36 293.361966 
+" style="fill: none; stroke: #000000; stroke-linecap: round"/>
+    <path d="M 29.16 289.761966 
+L 27.36 293.361966 
+L 25.56 289.761966 
+z
+" style="stroke: #000000; stroke-linecap: round"/>
+   </g>
+   <g id="text_35">
+    <g id="patch_69">
+     <path d="M 40.839562 293.365297 
+L 54.200437 293.365297 
+L 54.200437 282.994703 
+L 40.839562 282.994703 
+z
+" style="fill: #ffffff"/>
+    </g>
+    <text style="font-size: 8.8px; font-family: 'Liberation Sans', 'DejaVu Sans'; text-anchor: middle" x="47.52" y="290.457344" transform="rotate(-0 47.52 290.457344)">No</text>
+   </g>
+   <g id="text_36">
+    <text style="font-size: 8.8px; font-family: 'Liberation Sans', 'DejaVu Sans'; text-anchor: start" x="370.8" y="274.437344" transform="rotate(-0 370.8 274.437344)">N28 · Fallas de imagen  (F27–F28)</text>
+   </g>
+   <g id="patch_70">
+    <path d="M 286.56 272.16 
+Q 325.08 272.16 362.481966 272.16 
+" style="fill: none; stroke: #000000; stroke-linecap: round"/>
+    <path d="M 358.881966 270.36 
+L 362.481966 272.16 
+L 358.881966 273.96 
+z
+" style="stroke: #000000; stroke-linecap: round"/>
+   </g>
+   <g id="text_37">
+    <g id="patch_71">
+     <path d="M 319.866688 277.382164 
+L 330.293313 277.382164 
+L 330.293313 266.937836 
+L 319.866688 266.937836 
+z
+" style="fill: #ffffff"/>
+    </g>
+    <text style="font-size: 8.8px; font-family: 'Liberation Sans', 'DejaVu Sans'; text-anchor: middle" x="325.08" y="274.474211" transform="rotate(-0 325.08 274.474211)">Sí</text>
+   </g>
+   <g id="text_38">
+    <text style="font-size: 8.8px; font-family: 'Liberation Sans', 'DejaVu Sans'; text-anchor: start" x="370.8" y="298.594211" transform="rotate(-0 370.8 298.594211)">N30 · Periférico no reconocido  (F29–F30)</text>
+   </g>
+   <g id="patch_72">
+    <path d="M 286.56 304.2 
+Q 325.08 300.24 362.487828 296.394335 
+" style="fill: none; stroke: #000000; stroke-linecap: round"/>
+    <path d="M 358.722625 294.971926 
+L 362.487828 296.394335 
+L 359.090778 298.553052 
+z
+" style="stroke: #000000; stroke-linecap: round"/>
+   </g>
+   <g id="text_39">
+    <g id="patch_73">
+     <path d="M 319.866688 305.462164 
+L 330.293313 305.462164 
+L 330.293313 295.017836 
+L 319.866688 295.017836 
+z
+" style="fill: #ffffff"/>
+    </g>
+    <text style="font-size: 8.8px; font-family: 'Liberation Sans', 'DejaVu Sans'; text-anchor: middle" x="325.08" y="302.554211" transform="rotate(-0 325.08 302.554211)">Sí</text>
+   </g>
+   <g id="text_40">
+    <text style="font-size: 8.8px; font-family: 'Liberation Sans', 'DejaVu Sans'; text-anchor: start" x="370.8" y="320.157344" transform="rotate(-0 370.8 320.157344)">F31  Falla no determinada</text>
+   </g>
+   <g id="patch_74">
+    <path d="M 286.56 304.2 
+Q 325.08 311.04 362.499186 317.684528 
+" style="fill: none; stroke: #000000; stroke-linecap: round"/>
+    <path d="M 359.269338 315.282846 
+L 362.499186 317.684528 
+L 358.639931 318.827398 
+z
+" style="stroke: #000000; stroke-linecap: round"/>
+   </g>
+   <g id="text_41">
+    <g id="patch_75">
+     <path d="M 318.399563 316.225297 
+L 331.760437 316.225297 
+L 331.760437 305.854703 
+L 318.399563 305.854703 
+z
+" style="fill: #ffffff"/>
+    </g>
+    <text style="font-size: 8.8px; font-family: 'Liberation Sans', 'DejaVu Sans'; text-anchor: middle" x="325.08" y="313.317344" transform="rotate(-0 325.08 313.317344)">No</text>
+   </g>
+   <g id="text_42">
+    <text style="font-size: 8.5px; font-family: 'Liberation Sans', 'DejaVu Sans'; text-anchor: start" x="32.4" y="346.359707" transform="rotate(-0 32.4 346.359707)">Pregunta del tronco</text>
+   </g>
+   <g id="text_43">
+    <text style="font-size: 8.5px; font-family: 'Liberation Sans', 'DejaVu Sans'; text-anchor: start" x="190.8" y="346.395317" transform="rotate(-0 190.8 346.395317)">Subárbol (ver figuras siguientes)</text>
+   </g>
+   <g id="text_44">
+    <text style="font-size: 8.5px; font-family: 'Liberation Sans', 'DejaVu Sans'; text-anchor: start" x="388.8" y="346.359707" transform="rotate(-0 388.8 346.359707)">Falla</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="pcafc3ba966">
+   <rect x="0" y="0" width="648" height="356.4"/>
+  </clipPath>
+ </defs>
+</svg>

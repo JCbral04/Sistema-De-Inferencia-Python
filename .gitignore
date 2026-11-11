@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+data/sistema_experto.db
+docs/entregables/*.pdf
+.venv/
+venv/
+.idea/
+.vscode/
+.DS_Store
+~$*

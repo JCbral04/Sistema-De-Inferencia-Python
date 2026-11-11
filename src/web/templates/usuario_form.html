@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf %}
+{% block titulo %}Crear usuario{% endblock %}
+{% block contenido %}
+<h1>Crear usuario</h1>
+<div class="tarjeta form"><form method="post">{{ csrf() }}
+  <label for="nombre">Nombre completo</label><input id="nombre" type="text" name="nombre" required>
+  <label for="correo">Correo</label><input id="correo" type="email" name="correo" required>
+  <label for="clave">Contraseña inicial (mínimo 8 caracteres)</label><input id="clave" type="password" name="clave" minlength="8" required>
+  <label for="rol">Rol</label><select id="rol" name="rol">{% for r in roles %}<option>{{ r.nombre }}</option>{% endfor %}</select>
+  <div class="acciones"><button class="btn" type="submit">Crear</button><a class="btn sec" href="{{ url_for('admin.usuarios') }}">Cancelar</a></div>
+</form></div>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% from "_macros.html" import tabla_casos %}
+{% block titulo %}Casos{% endblock %}
+{% block contenido %}
+<h1>{{ 'Todos los casos' if usuario_actual.rol == 'Administrador' else 'Mis casos' }}</h1>
+{% if usuario_actual.rol == 'Administrador' %}
+<p class="sub">Filtrar:
+  <a href="{{ url_for('casos.lista') }}">Todos</a> ·
+  {% for e in ['Abierto','Diagnosticado','En atención','Resuelto'] %}<a href="{{ url_for('casos.lista', estado=e) }}">{{ e }}</a>{{ ' · ' if not loop.last }}{% endfor %}</p>
+{% endif %}
+{{ tabla_casos(casos) }}
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf %}
+{% block titulo %}Consulta{% endblock %}
+{% block contenido %}
+<h1>Consulta de diagnóstico · caso #{{ caso.id }}</h1>
+<p class="sub">{{ caso.equipo }} — {{ caso.descripcion }}</p>
+<div class="dos-col">
+  <div class="tarjeta">
+    <span class="muted">Pregunta {{ numero }}</span>
+    <div class="pregunta">{{ pregunta }}</div>
+    <form method="post" action="{{ url_for('casos.responder', caso_id=caso.id) }}" class="si-no">{{ csrf() }}
+      <input type="hidden" name="nodo" value="{{ nodo_id }}">
+      <button class="btn" name="valor" value="si" type="submit">Sí</button>
+      <button class="btn sec" name="valor" value="no" type="submit">No</button>
+    </form>
+    {% if respuestas %}
+    <form method="post" action="{{ url_for('casos.retroceder', caso_id=caso.id) }}" style="margin-top:18px">{{ csrf() }}
+      <button class="btn sec chico" type="submit">← Corregir la respuesta anterior</button></form>
+    {% endif %}
+  </div>
+  <div class="tarjeta">
+    <strong>Reglas aún posibles</strong>
+    <div class="progreso"><span style="width: {{ (100 * candidatas / total_reglas)|round|int }}%"></span></div>
+    <span class="muted">{{ candidatas }} de {{ total_reglas }} reglas son compatibles con sus respuestas.</span>
+    {% if respuestas %}
+    <h2 style="font-size:1rem">Respuestas dadas</h2>
+    <ol class="respuesta-lista">
+      {% for r in respuestas %}<li>{{ r.pregunta }} <strong>{{ 'Sí' if r.valor == 'si' else 'No' }}</strong></li>{% endfor %}
+    </ol>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

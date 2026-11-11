@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf %}
+{% block titulo %}Usuarios{% endblock %}
+{% block contenido %}
+<h1>Usuarios</h1>
+<div class="acciones" style="margin:0 0 16px"><a class="btn" href="{{ url_for('admin.usuario_nuevo') }}">Crear usuario</a></div>
+<div class="tabla-scroll"><table>
+  <tr><th>Nombre</th><th>Correo</th><th>Rol</th><th>Activo</th><th></th></tr>
+  {% for u in usuarios %}
+  <tr><td>{{ u.nombre }}</td><td>{{ u.correo }}</td>
+    {% if u.id == usuario_actual.id %}
+      <td>{{ u.rol }}</td><td>Sí</td><td class="muted">Su cuenta</td>
+    {% else %}
+      <td><form id="f{{ u.id }}" method="post" action="{{ url_for('admin.usuario_actualizar', usuario_id=u.id) }}" style="margin:0">{{ csrf() }}</form>
+        <select name="rol" form="f{{ u.id }}">{% for r in roles %}<option {{ 'selected' if u.rol == r.nombre }}>{{ r.nombre }}</option>{% endfor %}</select></td>
+      <td><select name="activo" form="f{{ u.id }}"><option value="1" {{ 'selected' if u.activo }}>Sí</option><option value="0" {{ 'selected' if not u.activo }}>No</option></select></td>
+      <td><button class="btn sec chico" type="submit" form="f{{ u.id }}">Guardar</button></td>
+    {% endif %}
+  </tr>
+  {% endfor %}
+</table></div>
+{% endblock %}

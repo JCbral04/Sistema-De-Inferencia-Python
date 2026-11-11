@@ -1,0 +1,124 @@
+
+== G1. Ficha de la hipótesis: datos, categoría, fuente (experto) y solución. [F05]
+codigo         : F05
+nombre         : Memoria RAM no detectada o mal asentada
+categoria      : Placa madre, memoria y arranque
+severidad      : Media
+factor_certeza : 0.85
+fuente_experto : Experto humano del dominio (por registrar)
+solucion       : Reasentar los módulos, limpiar los contactos, probar un módulo por ranura y reemplazar el módulo defectuoso.
+
+== G2. Regla que concluye la hipótesis. [F05]
+regla | hipotesis | factor_certeza
+------+-----------+---------------
+R05   | F05       | 0.85          
+
+== G3. Premisas de la regla: síntomas y valor esperado, en el orden del camino. [F05]
+regla | orden | sintoma | pregunta                                                               | valor
+------+-------+---------+------------------------------------------------------------------------+------
+R05   | 1     | S01     | ¿El equipo enciende de forma sostenida (las luces y los ventiladores p | SÍ   
+R05   | 2     | S05     | ¿Se escuchan pitidos de error al arrancar (varios seguidos; un único p | SÍ   
+R05   | 3     | S06     | ¿Los pitidos son largos o continuos (no cortos y espaciados)?          | SÍ   
+
+== G4. Camino del árbol hasta la hoja de la hipótesis (de la raíz a la hoja). [F05]
+pasos_a_la_hoja | nodo  | rama_desde_padre | sintoma
+----------------+-------+------------------+--------
+3               | N01   | None             | S01    
+2               | N05   | si               | S05    
+1               | N06   | si               | S06    
+0               | L-F05 | si               | None   
+
+== G7. Regla completa en una sola fila, con la forma SI ... ENTONCES ... [F05]
+regla | regla_textual                                 
+------+-----------------------------------------------
+R05   | SI S01 = SÍ Y S05 = SÍ Y S06 = SÍ ENTONCES F05
+
+== G1. Ficha de la hipótesis: datos, categoría, fuente (experto) y solución. [F17]
+codigo         : F17
+nombre         : Fuente de poder o cargador insuficiente o inestable bajo carga
+categoria      : Energía y encendido
+severidad      : Alta
+factor_certeza : 0.78
+fuente_experto : Experto humano del dominio (por registrar)
+solucion       : Calcular el consumo total del equipo y reemplazar la fuente por una de mayor potencia y certificación 80 Plus; en portátiles, usar un cargador original con la potencia indicada por el fabricante.
+
+== G2. Regla que concluye la hipótesis. [F17]
+regla | hipotesis | factor_certeza
+------+-----------+---------------
+R17   | F17       | 0.78          
+
+== G3. Premisas de la regla: síntomas y valor esperado, en el orden del camino. [F17]
+regla | orden | sintoma | pregunta                                                               | valor
+------+-------+---------+------------------------------------------------------------------------+------
+R17   | 1     | S01     | ¿El equipo enciende de forma sostenida (las luces y los ventiladores p | SÍ   
+R17   | 2     | S05     | ¿Se escuchan pitidos de error al arrancar (varios seguidos; un único p | NO   
+R17   | 3     | S07     | ¿La pantalla muestra imagen al arrancar (logo del fabricante, BIOS o s | SÍ   
+R17   | 4     | S09     | ¿Aparece un error de BIOS/CMOS (fecha y hora incorrectas, «CMOS checks | NO   
+R17   | 5     | S10     | ¿El equipo llega a cargar el sistema operativo?                        | SÍ   
+R17   | 6     | S15     | ¿El equipo se apaga o se reinicia solo de forma repentina?             | SÍ   
+R17   | 7     | S16     | ¿La temperatura es alta o los ventiladores suenan muy fuerte?          | NO   
+R17   | 8     | S18     | ¿El equipo se apaga al ejecutar tareas exigentes (juegos, edición de v | SÍ   
+
+== G4. Camino del árbol hasta la hoja de la hipótesis (de la raíz a la hoja). [F17]
+pasos_a_la_hoja | nodo  | rama_desde_padre | sintoma
+----------------+-------+------------------+--------
+8               | N01   | None             | S01    
+7               | N05   | si               | S05    
+6               | N07   | no               | S07    
+5               | N09   | si               | S09    
+4               | N10   | no               | S10    
+3               | N15   | si               | S15    
+2               | N16   | si               | S16    
+1               | N18   | no               | S18    
+0               | L-F17 | si               | None   
+
+== G7. Regla completa en una sola fila, con la forma SI ... ENTONCES ... [F17]
+regla | regla_textual                                                         
+------+-----------------------------------------------------------------------
+R17   | SI S01 = SÍ Y S05 = NO Y S07 = SÍ Y S09 = NO Y S10 = SÍ Y S15 = SÍ Y S
+
+== G1. Ficha de la hipótesis: datos, categoría, fuente (experto) y solución. [F21]
+codigo         : F21
+nombre         : Infección por malware
+categoria      : Sistema operativo y software
+severidad      : Alta
+factor_certeza : 0.82
+fuente_experto : Experto humano del dominio (por registrar)
+solucion       : Analizar en modo seguro con un antimalware actualizado, cambiar contraseñas y restaurar el sistema si es necesario.
+
+== G2. Regla que concluye la hipótesis. [F21]
+regla | hipotesis | factor_certeza
+------+-----------+---------------
+R21   | F21       | 0.82          
+
+== G3. Premisas de la regla: síntomas y valor esperado, en el orden del camino. [F21]
+regla | orden | sintoma | pregunta                                                               | valor
+------+-------+---------+------------------------------------------------------------------------+------
+R21   | 1     | S01     | ¿El equipo enciende de forma sostenida (las luces y los ventiladores p | SÍ   
+R21   | 2     | S05     | ¿Se escuchan pitidos de error al arrancar (varios seguidos; un único p | NO   
+R21   | 3     | S07     | ¿La pantalla muestra imagen al arrancar (logo del fabricante, BIOS o s | SÍ   
+R21   | 4     | S09     | ¿Aparece un error de BIOS/CMOS (fecha y hora incorrectas, «CMOS checks | NO   
+R21   | 5     | S10     | ¿El equipo llega a cargar el sistema operativo?                        | SÍ   
+R21   | 6     | S15     | ¿El equipo se apaga o se reinicia solo de forma repentina?             | NO   
+R21   | 7     | S19     | ¿El equipo funciona con lentitud notable durante su uso habitual?      | SÍ   
+R21   | 8     | S20     | ¿El disco está casi lleno o muestra un uso cercano al 100 % de forma c | NO   
+R21   | 9     | S22     | ¿Aparecen ventanas emergentes, publicidad, redirecciones del navegador | SÍ   
+
+== G4. Camino del árbol hasta la hoja de la hipótesis (de la raíz a la hoja). [F21]
+pasos_a_la_hoja | nodo  | rama_desde_padre | sintoma
+----------------+-------+------------------+--------
+9               | N01   | None             | S01    
+8               | N05   | si               | S05    
+7               | N07   | no               | S07    
+6               | N09   | si               | S09    
+5               | N10   | no               | S10    
+4               | N15   | si               | S15    
+3               | N19   | no               | S19    
+2               | N20   | si               | S20    
+1               | N22   | no               | S22    
+0               | L-F21 | si               | None   
+
+== G7. Regla completa en una sola fila, con la forma SI ... ENTONCES ... [F21]
+regla | regla_textual                                                         
+------+-----------------------------------------------------------------------
+R21   | SI S01 = SÍ Y S05 = NO Y S07 = SÍ Y S09 = NO Y S10 = SÍ Y S15 = NO Y S

@@ -1,0 +1,134 @@
+MODELO RELACIONAL (SGBD: SQLite 3)
+Notación: PK = clave primaria · FK = clave foránea · UK = valor único · NN = obligatorio
+
+experto(
+    id [PK],
+    nombre [NN],
+    especialidad [NN],
+    anios_experiencia [NN],
+    fuente [NN],
+)
+
+categoria(
+    id [PK],
+    codigo [UK, NN],
+    nombre [UK, NN],
+    descripcion [NN],
+)
+
+hipotesis(
+    id [PK],
+    codigo [UK, NN],
+    nombre [NN],
+    descripcion [NN],
+    categoria_id [FK→categoria.id, NN],
+    experto_id [FK→experto.id, NN],
+    severidad [NN],
+    factor_certeza [NN],
+    solucion [NN],
+)
+
+sintoma(
+    id [PK],
+    codigo [UK, NN],
+    pregunta [NN],
+)
+
+nodo_arbol(
+    id [PK],
+    codigo [UK, NN],
+    padre_id [FK→nodo_arbol.id],
+    rama,
+    sintoma_id [FK→sintoma.id],
+    hipotesis_id [FK→hipotesis.id],
+)
+
+regla(
+    id [PK],
+    codigo [UK, NN],
+    hipotesis_id [FK→hipotesis.id, NN],
+    nodo_hoja_id [FK→nodo_arbol.id, UK, NN],
+    factor_certeza [NN],
+)
+
+regla_condicion(
+    regla_id [PK, FK→regla.id],
+    orden [PK],
+    sintoma_id [FK→sintoma.id, NN],
+    valor [NN],
+)
+
+rol(
+    id [PK],
+    nombre [UK, NN],
+    descripcion [NN],
+)
+
+usuario(
+    id [PK],
+    nombre [NN],
+    correo [UK, NN],
+    clave_hash [NN],
+    rol_id [FK→rol.id, NN],
+    activo [NN],
+    creado_en [NN],
+)
+
+equipo(
+    id [PK],
+    cliente_id [FK→usuario.id, NN],
+    tipo [NN],
+    marca [NN],
+    modelo [NN],
+    serial,
+    creado_en [NN],
+)
+
+caso(
+    id [PK],
+    equipo_id [FK→equipo.id, NN],
+    cliente_id [FK→usuario.id, NN],
+    tecnico_id [FK→usuario.id],
+    descripcion [NN],
+    estado [NN],
+    abierto_en [NN],
+    cerrado_en,
+)
+
+consulta(
+    id [PK],
+    caso_id [FK→caso.id, NN],
+    nodo_actual_id [FK→nodo_arbol.id, NN],
+    estado [NN],
+    iniciada_en [NN],
+    finalizada_en,
+)
+
+respuesta(
+    id [PK],
+    consulta_id [FK→consulta.id, NN],
+    nodo_id [FK→nodo_arbol.id, NN],
+    sintoma_id [FK→sintoma.id, NN],
+    valor [NN],
+    orden [NN],
+    respondida_en [NN],
+)
+
+diagnostico(
+    id [PK],
+    consulta_id [FK→consulta.id, UK, NN],
+    hipotesis_id [FK→hipotesis.id, NN],
+    regla_id [FK→regla.id, NN],
+    factor_certeza [NN],
+    emitido_en [NN],
+    confirmado,
+)
+
+seguimiento(
+    id [PK],
+    caso_id [FK→caso.id, NN],
+    tecnico_id [FK→usuario.id, NN],
+    observacion [NN],
+    accion_realizada,
+    registrado_en [NN],
+)

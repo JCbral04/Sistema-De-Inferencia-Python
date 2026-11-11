@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf, estado %}
+{% block titulo %}Caso {{ caso.id }}{% endblock %}
+{% block contenido %}
+<h1>Caso #{{ caso.id }} {{ estado(caso.estado) }}</h1>
+<p class="sub">{{ caso.equipo }} · cliente {{ caso.cliente }} · técnico {{ caso.tecnico or 'sin asignar' }} · abierto {{ caso.abierto_en|fecha }}</p>
+<div class="tarjeta"><strong>Problema reportado</strong><p style="margin:6px 0 0">{{ caso.descripcion }}</p></div>
+
+{% if caso.estado == 'Abierto' and usuario_actual.rol == 'Cliente' %}
+  <div class="tarjeta"><p>Este caso aún no tiene diagnóstico.</p>
+  <a class="btn" href="{{ url_for('casos.consulta', caso_id=caso.id) }}">Continuar la consulta</a></div>
+{% endif %}
+
+{% if diagnostico and hipotesis %}
+<div class="tarjeta">
+  <h2 style="margin-top:0">Diagnóstico del sistema experto</h2>
+  <p style="font-size:1.2rem;margin:4px 0"><strong>{{ hipotesis.codigo }} · {{ hipotesis.nombre }}</strong>
+    <span class="etiqueta {{ hipotesis.severidad }}">{{ hipotesis.severidad }}</span></p>
+  <p class="muted">{{ hipotesis.categoria }} · factor de certeza {{ '%.0f'|format(diagnostico.factor_certeza * 100) }} %</p>
+  <p>{{ hipotesis.descripcion }}</p>
+  <strong>Solución recomendada</strong><p style="margin:4px 0 12px">{{ hipotesis.solucion }}</p>
+  {% if regla %}<div class="regla">{{ regla.texto(hipotesis.codigo) }}</div>{% endif %}
+  {% if diagnostico.confirmado is not none %}
+    <p style="margin-top:12px">Validación técnica:
+      <strong>{{ 'diagnóstico confirmado' if diagnostico.confirmado else 'diagnóstico no coincidió con la falla real' }}</strong></p>
+  {% endif %}
+</div>
+{% endif %}
+
+{% if respuestas %}
+<div class="tarjeta"><strong>Respuestas de la consulta</strong>
+  <ol class="respuesta-lista" style="margin-top:8px">
+  {% for r in respuestas %}<li>{{ r.pregunta }} <strong>{{ 'Sí' if r.valor == 'si' else 'No' }}</strong></li>{% endfor %}
+  </ol></div>
+{% endif %}
+
+{% if usuario_actual.rol == 'Técnico' and caso.estado == 'Diagnosticado' and not caso.tecnico_id %}
+  <form method="post" action="{{ url_for('tecnico.tomar', caso_id=caso.id) }}">{{ csrf() }}
+    <button class="btn" type="submit">Tomar caso</button></form>
+{% endif %}
+
+{% if seguimientos %}
+<h2>Seguimiento técnico</h2>
+<div class="tabla-scroll"><table><tr><th>Fecha</th><th>Técnico</th><th>Acción</th><th>Observación</th></tr>
+{% for s in seguimientos %}<tr><td>{{ s.registrado_en|fecha }}</td><td>{{ s.tecnico }}</td><td>{{ s.accion_realizada or '—' }}</td><td>{{ s.observacion }}</td></tr>{% endfor %}
+</table></div>
+{% endif %}
+
+{% if usuario_actual.rol == 'Técnico' and caso.estado == 'En atención' and caso.tecnico_id == usuario_actual.id %}
+<div class="dos-col" style="margin-top:20px">
+  <div class="tarjeta"><strong>Registrar seguimiento</strong>
+    <form method="post" action="{{ url_for('tecnico.seguimiento', caso_id=caso.id) }}">{{ csrf() }}
+      <label for="accion">Acción realizada</label><input id="accion" type="text" name="accion">
+      <label for="obs">Observación</label><textarea id="obs" name="observacion" required></textarea>
+      <div class="acciones"><button class="btn sec" type="submit">Guardar seguimiento</button></div></form></div>
+  <div class="tarjeta"><strong>Resolver el caso</strong>
+    <form method="post" action="{{ url_for('tecnico.resolver', caso_id=caso.id) }}">{{ csrf() }}
+      <label for="correcto">¿El diagnóstico del sistema fue correcto?</label>
+      <select id="correcto" name="correcto"><option value="si">Sí, la falla era esa</option><option value="no">No, la falla era otra</option></select>
+      <label for="obs2">Solución aplicada</label><textarea id="obs2" name="observacion" required></textarea>
+      <div class="acciones"><button class="btn" type="submit">Marcar como resuelto</button></div></form></div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf %}
+{% block titulo %}Preguntas{% endblock %}
+{% block contenido %}
+<h1>Preguntas (síntomas)</h1><p class="sub">Cada síntoma es la pregunta de un nodo del árbol.</p>
+<div class="tabla-scroll"><table>
+  <tr><th>Código</th><th>Pregunta</th>{% if usuario_actual.rol == 'Experto' %}<th></th>{% endif %}</tr>
+  {% for s in sintomas %}
+  <tr><td>{{ s.codigo }}</td>
+    {% if usuario_actual.rol == 'Experto' %}
+    <td colspan="2"><form method="post" style="display:flex;gap:8px;margin:0">{{ csrf() }}
+      <input type="hidden" name="sintoma_id" value="{{ s.id }}">
+      <input type="text" name="pregunta" value="{{ s.pregunta }}" required>
+      <button class="btn sec chico" type="submit">Guardar</button></form></td>
+    {% else %}<td>{{ s.pregunta }}</td>{% endif %}
+  </tr>
+  {% endfor %}
+</table></div>
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf %}
+{% block titulo %}Nuevo caso{% endblock %}
+{% block contenido %}
+<h1>Abrir un caso</h1><p class="sub">Después de abrirlo responderá una consulta guiada con preguntas de sí o no.</p>
+{% if not equipos %}
+  <div class="tarjeta"><p>Primero debe registrar un equipo.</p>
+  <a class="btn" href="{{ url_for('cliente.equipo_form') }}">Registrar equipo</a></div>
+{% else %}
+<div class="tarjeta form"><form method="post">{{ csrf() }}
+  <label for="equipo_id">Equipo</label>
+  <select id="equipo_id" name="equipo_id">{% for e in equipos %}<option value="{{ e.id }}">{{ e.etiqueta }}</option>{% endfor %}</select>
+  <label for="descripcion">Describa el problema</label>
+  <textarea id="descripcion" name="descripcion" required minlength="10" placeholder="Ej.: el equipo se apaga solo después de unos minutos de uso"></textarea>
+  <div class="acciones"><button class="btn" type="submit">Abrir caso e iniciar consulta</button></div>
+</form></div>
+{% endif %}
+{% endblock %}

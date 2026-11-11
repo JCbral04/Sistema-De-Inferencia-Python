@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf %}
+{% block titulo %}Editar {{ h.codigo }}{% endblock %}
+{% block contenido %}
+<h1>Editar {{ h.codigo }}</h1><p class="sub">Los cambios se aplican de inmediato a los nuevos diagnósticos.</p>
+<div class="tarjeta form"><form method="post">{{ csrf() }}
+  <label for="nombre">Nombre</label><input id="nombre" type="text" name="nombre" value="{{ h.nombre }}" required>
+  <label for="descripcion">Descripción</label><textarea id="descripcion" name="descripcion">{{ h.descripcion }}</textarea>
+  <label for="severidad">Severidad</label>
+  <select id="severidad" name="severidad">{% for s in ['Baja','Media','Alta','Crítica'] %}<option {{ 'selected' if h.severidad == s }}>{{ s }}</option>{% endfor %}</select>
+  <label for="fc">Factor de certeza (0 a 1)</label>
+  <input id="fc" type="text" name="factor_certeza" value="{{ '%.2f'|format(h.factor_certeza) }}" required>
+  <label for="solucion">Solución recomendada</label><textarea id="solucion" name="solucion" required>{{ h.solucion }}</textarea>
+  <div class="acciones"><button class="btn" type="submit">Guardar</button>
+    <a class="btn sec" href="{{ url_for('conocimiento.hipotesis_detalle', hipotesis_id=h.id) }}">Cancelar</a></div>
+</form></div>
+{% endblock %}
