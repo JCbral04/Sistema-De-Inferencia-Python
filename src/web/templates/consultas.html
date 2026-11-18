@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf, estado %}
+{% block titulo %}Consultas{% endblock %}
+{% block contenido %}
+<h1>Consultas de diagnóstico</h1>
+<p class="sub">Inicie una consulta nueva o revise sus últimas {{ limite }} consultas y elija una para ver su detalle.</p>
+
+<div class="tarjeta" id="nueva">
+  <h2 style="margin-top:0">Iniciar una consulta</h2>
+  {% if not equipos %}
+    <p>Para consultar necesita registrar primero un equipo.</p>
+    <a class="btn" href="{{ url_for('cliente.equipo_form') }}">Registrar un equipo</a>
+  {% else %}
+  <form method="post" action="{{ url_for('cliente.caso_nuevo') }}" class="form">{{ csrf() }}
+    <label for="equipo_id">Equipo con el problema</label>
+    <select id="equipo_id" name="equipo_id" required>
+      {% for e in equipos %}<option value="{{ e.id }}" {{ 'selected' if e.id == valores.equipo_id }}>{{ e.etiqueta }}</option>{% endfor %}
+    </select>
+    <label for="descripcion">Describa el problema</label>
+    <textarea id="descripcion" name="descripcion" required minlength="10" maxlength="1000"
+      placeholder="Ej.: el equipo se apaga solo después de unos minutos de uso">{{ valores.descripcion }}</textarea>
+    <div class="acciones"><button class="btn" type="submit">Iniciar consulta</button>
+      <span class="muted">Después responderá preguntas de sí o no hasta llegar al diagnóstico.</span></div>
+  </form>
+  {% endif %}
+</div>
+
+<h2>Mis últimas {{ limite }} consultas</h2>
+{% if historial %}
+<div class="tabla-scroll"><table class="historial">
+  <tr><th>Fecha</th><th>Equipo</th><th>Problema</th><th>Estado</th><th>Diagnóstico</th><th>Elección</th></tr>
+  {% for h in historial %}
+  {% set es_elegida = elegida and elegida.id == h.caso_id %}
+  <tr {% if es_elegida %}class="seleccionada" aria-current="true"{% endif %}>
+    <td>{{ h.fecha|fecha }}</td>
+    <td>{{ h.equipo }}</td>
+    <td>{{ h.descripcion|truncate(60) }}</td>
+    <td>{{ estado(h.estado_caso) }}</td>
+    <td>{% if h.falla %}<strong>{{ h.falla_codigo }}</strong> {{ h.falla }}
+        <span class="muted">({{ (h.factor_certeza * 100)|round|int }} %)</span>
+      {% else %}<span class="muted">Consulta sin terminar{% if h.preguntas %} ({{ h.preguntas }} {{ 'respuesta' if h.preguntas == 1 else 'respuestas' }}){% endif %}</span>{% endif %}</td>
+    <td>{% if es_elegida %}<span class="etiqueta elegida">Elegida</span>
+        {% else %}<a class="btn sec chico" href="{{ url_for('cliente.consultas', ver=h.caso_id) }}#detalle">Ver</a>{% endif %}</td>
+  </tr>
+  {% endfor %}
+</table></div>
+<p class="muted">¿Busca una consulta más antigua? Está en <a href="{{ url_for('casos.lista') }}">Mis casos</a>.</p>
+{% else %}
+<p class="muted">Todavía no ha hecho consultas. Cuando inicie una, aparecerá aquí.</p>
+{% endif %}
+
+{% if elegida %}
+<div class="tarjeta" id="detalle">
+  <h2 style="margin-top:0">Consulta elegida · caso #{{ elegida.id }} {{ estado(elegida.estado) }}</h2>
+  <p class="sub">{{ elegida.equipo }} · {{ elegida.abierto_en|fecha }}{% if not en_historial %} · no está entre las últimas {{ limite }}{% endif %}</p>
+  <p><strong>Problema reportado:</strong> {{ elegida.descripcion }}</p>
+  {% if ficha.hipotesis %}
+    <p style="font-size:1.15rem;margin:8px 0 2px"><strong>{{ ficha.hipotesis.codigo }} · {{ ficha.hipotesis.nombre }}</strong>
+      <span class="etiqueta {{ ficha.hipotesis.severidad }}">{{ ficha.hipotesis.severidad }}</span></p>
+    <p class="muted">{{ ficha.hipotesis.categoria }} · factor de certeza {{ '%.0f'|format(ficha.diagnostico.factor_certeza * 100) }} %</p>
+    <p><strong>Solución recomendada:</strong> {{ ficha.hipotesis.solucion }}</p>
+  {% elif elegida.estado == 'Abierto' %}
+    <p>Esta consulta no se terminó, así que aún no tiene diagnóstico.</p>
+    <a class="btn" href="{{ url_for('casos.consulta', caso_id=elegida.id) }}">Continuar la consulta</a>
+  {% endif %}
+  {% if ficha.respuestas %}
+    <strong>Respuestas dadas</strong>
+    <ol class="respuesta-lista" style="margin-top:6px">
+      {% for r in ficha.respuestas %}<li>{{ r.pregunta }} <strong>{{ 'Sí' if r.valor == 'si' else 'No' }}</strong></li>{% endfor %}
+    </ol>
+  {% endif %}
+  <div class="acciones">
+    <a class="btn sec" href="{{ url_for('casos.detalle', caso_id=elegida.id) }}">Abrir el caso completo</a>
+    <a class="btn sec" href="{{ url_for('cliente.consultas', equipo=elegida.equipo_id) }}#nueva">Consultar de nuevo este equipo</a>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

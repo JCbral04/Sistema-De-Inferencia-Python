@@ -15,6 +15,9 @@ from src.domain.models import Caso, Consulta, Diagnostico, NodoArbol, Usuario
 from src.services.motor_inferencia import MotorInferencia
 
 _CORREO = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+_CLAVES_COMUNES = {"12345678", "123456789", "1234567890", "11111111", "password", "password1", "contrasena1",
+                   "contraseña1", "qwerty123", "abc12345", "admin123", "iloveyou1"}
+_HASH_FALSO = generate_password_hash("contraseña-inexistente-1")   # para igualar el tiempo si el correo no existe
 
 
 class ErrorNegocio(Exception):
@@ -28,24 +31,35 @@ class AutenticacionService:
 
     def autenticar(self, correo: str, clave: str) -> Usuario:
         encontrado = self.usuarios.obtener_credenciales(correo)
-        if not encontrado or not check_password_hash(encontrado[1], clave):
+        # Se verifica un hash aunque el correo no exista: así la respuesta tarda igual y no revela qué correos
+        # tienen cuenta. El mensaje también es el mismo en ambos casos.
+        if not check_password_hash(encontrado[1] if encontrado else _HASH_FALSO, clave) or not encontrado:
             raise ErrorNegocio("Correo o contraseña incorrectos.")
         if not encontrado[0].activo:
             raise ErrorNegocio("El usuario está desactivado. Contacte al administrador.")
         return encontrado[0]
 
     @staticmethod
-    def _validar_clave(clave: str) -> None:
+    def _validar_clave(clave: str, correo: str = "", nombre: str = "") -> None:
+        """Política de contraseñas: 8 a 128 caracteres, con letras y números, que no sea una clave
+        típica ni coincida con el correo o el nombre de la persona."""
         if len(clave) < 8:
             raise ErrorNegocio("La contraseña debe tener al menos 8 caracteres.")
+        if len(clave) > 128:
+            raise ErrorNegocio("La contraseña no puede superar los 128 caracteres.")
+        if not re.search(r"[^\W\d_]", clave) or not re.search(r"\d", clave):
+            raise ErrorNegocio("La contraseña debe combinar letras y números.")
+        propios = {correo.strip().lower(), correo.strip().lower().split("@")[0], nombre.strip().lower()} - {""}
+        if clave.lower() in _CLAVES_COMUNES or clave.lower() in propios:
+            raise ErrorNegocio("Esa contraseña es demasiado fácil de adivinar. Elija otra.")
 
     def registrar(self, nombre: str, correo: str, clave: str, rol: str = "Cliente") -> int:
-        nombre = nombre.strip()
-        if len(nombre) < 3:
-            raise ErrorNegocio("Ingrese un nombre de al menos 3 caracteres.")
-        if not _CORREO.match(correo.strip()):
+        nombre, correo = " ".join(nombre.split()), correo.strip()
+        if not 3 <= len(nombre) <= 80:
+            raise ErrorNegocio("Ingrese un nombre de entre 3 y 80 caracteres.")
+        if len(correo) > 120 or not _CORREO.match(correo):
             raise ErrorNegocio("Ingrese un correo válido.")
-        self._validar_clave(clave)
+        self._validar_clave(clave, correo, nombre)
         rol_id = self.roles.id_por_nombre(rol)
         if rol_id is None:
             raise ErrorNegocio("Rol inexistente.")
@@ -59,7 +73,7 @@ class AutenticacionService:
         credenciales = self.usuarios.obtener_credenciales(usuario.correo)
         if credenciales is None or not check_password_hash(credenciales[1], actual):
             raise ErrorNegocio("La contraseña actual no es correcta.")
-        self._validar_clave(nueva)
+        self._validar_clave(nueva, usuario.correo, usuario.nombre)
         if check_password_hash(credenciales[1], nueva):
             raise ErrorNegocio("La nueva contraseña debe ser distinta de la actual.")
         self.usuarios.cambiar_clave(usuario.id, generate_password_hash(nueva))
@@ -114,7 +128,8 @@ class DiagnosticoService:
         self.nodos = NodoArbolDAO(conexion)
         self.sintomas = SintomaDAO(conexion)
         self.hipotesis = HipotesisDAO(conexion)
-        self.motor = MotorInferencia(self.nodos, ReglaDAO(conexion))
+        self.reglas = ReglaDAO(conexion)
+        self.motor = MotorInferencia(self.nodos, self.reglas)
 
     # --- casos ---------------------------------------------------------------
     def abrir_caso(self, cliente_id: int, equipo_id: int, descripcion: str) -> int:
@@ -123,7 +138,25 @@ class DiagnosticoService:
             raise ErrorNegocio("Seleccione uno de sus equipos.")
         if len(descripcion.strip()) < 10:
             raise ErrorNegocio("Describa el problema con al menos 10 caracteres.")
+        if len(descripcion.strip()) > 1000:
+            raise ErrorNegocio("La descripción no puede superar los 1000 caracteres.")
         return self.casos.crear(equipo_id, cliente_id, descripcion.strip())
+
+    def historial(self, cliente_id: int, limite: int = 5):
+        """Últimas consultas del cliente, de la más reciente a la más antigua."""
+        return self.casos.resumen_consultas(cliente_id, limite)
+
+    def ficha(self, caso: Caso) -> dict:
+        """Todo lo que se muestra de una consulta ya hecha: diagnóstico, falla, regla y respuestas dadas."""
+        diagnostico = self.diagnosticos.por_caso(caso.id)
+        consulta = self.consultas.ultima_por_caso(caso.id)
+        return {
+            "diagnostico": diagnostico,
+            "hipotesis": self.hipotesis.obtener(diagnostico.hipotesis_id) if diagnostico else None,
+            "regla": self.reglas.obtener(diagnostico.regla_id) if diagnostico else None,
+            "consulta": consulta,
+            "respuestas": self.respuestas.listar(consulta.id) if consulta else [],
+        }
 
     # --- consulta de diagnóstico ----------------------------------------------
     def iniciar_consulta(self, caso: Caso) -> Consulta:

@@ -52,6 +52,23 @@ class Caso:
 
 
 @dataclass(frozen=True, slots=True)
+class ResumenConsulta:
+    """Una fila del historial del cliente: el caso, su consulta y, si ya terminó, el diagnóstico obtenido."""
+    caso_id: int
+    equipo_id: int
+    equipo: str
+    descripcion: str
+    fecha: str
+    estado_caso: str
+    estado_consulta: str | None
+    preguntas: int
+    falla_codigo: str | None = None
+    falla: str | None = None
+    severidad: str | None = None
+    factor_certeza: float | None = None
+
+
+@dataclass(frozen=True, slots=True)
 class Categoria:
     id: int
     codigo: str

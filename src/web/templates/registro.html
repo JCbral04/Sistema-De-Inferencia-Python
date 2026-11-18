@@ -4,13 +4,20 @@
 {% block contenido %}
 <div class="tarjeta login">
   <h1>Crear cuenta</h1>
-  <p class="sub">Las cuentas nuevas se crean con el rol Cliente.</p>
+  <p class="sub">Registre sus datos para consultar el estado de sus equipos. Las cuentas nuevas tienen el rol Cliente.</p>
   <form method="post">{{ csrf() }}
-    <label for="nombre">Nombre completo</label><input id="nombre" type="text" name="nombre" required>
-    <label for="correo">Correo</label><input id="correo" type="email" name="correo" required>
-    <label for="clave">Contraseña (mínimo 8 caracteres)</label><input id="clave" type="password" name="clave" minlength="8" required>
-    <div class="acciones"><button class="btn" type="submit">Crear cuenta</button>
-      <a href="{{ url_for('publico.login') }}">Ya tengo cuenta</a></div>
+    <label for="nombre">Nombre completo</label>
+    <input id="nombre" type="text" name="nombre" value="{{ nombre }}" autocomplete="name" minlength="3" maxlength="80" required autofocus>
+    <label for="correo">Correo</label>
+    <input id="correo" type="email" name="correo" value="{{ correo }}" autocomplete="username" maxlength="120" required>
+    <label for="clave">Contraseña</label>
+    <input id="clave" type="password" name="clave" data-clave autocomplete="new-password" minlength="8" maxlength="128" required aria-describedby="ayuda-clave">
+    <small id="ayuda-clave" class="muted">Al menos 8 caracteres, con letras y números.</small>
+    <label for="confirmacion">Confirmar contraseña</label>
+    <input id="confirmacion" type="password" name="confirmacion" data-clave autocomplete="new-password" minlength="8" maxlength="128" required>
+    <label class="casilla"><input type="checkbox" class="ver-clave"> Mostrar contraseñas</label>
+    <div class="acciones"><button class="btn" type="submit">Crear cuenta</button></div>
   </form>
+  <p class="aparte">¿Ya tiene cuenta? <a href="{{ url_for('publico.login') }}">Ingrese aquí</a>.</p>
 </div>
 {% endblock %}

@@ -5,11 +5,14 @@
 <div class="tarjeta login">
   <h1>Ingresar</h1>
   <p class="sub">Sistema experto para el diagnóstico de fallas de computadores.</p>
-  <form method="post">{{ csrf() }}
-    <label for="correo">Correo</label><input id="correo" type="email" name="correo" required autofocus>
-    <label for="clave">Contraseña</label><input id="clave" type="password" name="clave" required>
-    <div class="acciones"><button class="btn" type="submit">Ingresar</button>
-      <a href="{{ url_for('publico.registro') }}">Crear cuenta de cliente</a></div>
+  <form method="post" autocomplete="on">{{ csrf() }}
+    <label for="correo">Correo</label>
+    <input id="correo" type="email" name="correo" value="{{ correo }}" autocomplete="username" maxlength="120" required {{ 'autofocus' if not correo }}>
+    <label for="clave">Contraseña</label>
+    <input id="clave" type="password" name="clave" data-clave autocomplete="current-password" maxlength="200" required {{ 'autofocus' if correo }}>
+    <label class="casilla"><input type="checkbox" class="ver-clave"> Mostrar contraseña</label>
+    <div class="acciones"><button class="btn" type="submit">Ingresar</button></div>
   </form>
+  <p class="aparte">¿Aún no tiene cuenta? <a href="{{ url_for('publico.registro') }}">Cree una cuenta de cliente</a> y empiece su primera consulta.</p>
 </div>
 {% endblock %}

@@ -25,8 +25,10 @@ PUERTO = 5077
 BASE = f"http://127.0.0.1:{PUERTO}"
 VISTA = {"width": 1000, "height": 620}
 
+# El cliente del escenario no es la cuenta de demostración: se registra desde el formulario de la aplicación.
+NUEVO_CLIENTE = {"nombre": "Laura Ruiz", "correo": "laura.ruiz@correo.com", "clave": "Mi-clave-2026"}
 CUENTAS = {
-    "Cliente": ("cliente@sistemaexperto.local", "Cliente123*"),
+    "Cliente": (NUEVO_CLIENTE["correo"], NUEVO_CLIENTE["clave"]),
     "Técnico": ("tecnico@sistemaexperto.local", "Tecnico123*"),
     "Experto": ("experto@sistemaexperto.local", "Experto123*"),
     "Administrador": ("admin@sistemaexperto.local", "Admin123*"),
@@ -59,6 +61,20 @@ def salir(page: Page) -> None:
     page.wait_for_load_state("networkidle")
 
 
+def iniciar_consulta(page: Page, descripcion: str) -> None:
+    """Llena el formulario de la pantalla de consultas y la inicia."""
+    page.goto(BASE + "/cliente/consultas")
+    page.fill("#descripcion", descripcion)
+    page.click("button:has-text('Iniciar consulta')")
+    page.wait_for_load_state("networkidle")
+
+
+def responder(page: Page, respuestas: list[str]) -> None:
+    for valor in respuestas:
+        page.click(f"button[name=valor][value={valor}]")
+        page.wait_for_load_state("networkidle")
+
+
 def foto(page: Page, nombre: str, completa: bool = False) -> None:
     ruta = SALIDA / f"{nombre}.png"
     page.screenshot(path=str(ruta), full_page=completa)
@@ -70,8 +86,17 @@ def escenario(page: Page) -> None:
     page.goto(BASE + "/login")
     foto(page, "01_ingreso")
 
-    # Cliente: equipo, caso y consulta guiada
-    entrar(page, "Cliente")
+    # Cliente nuevo: se registra desde el formulario y queda con la sesión abierta
+    page.goto(BASE + "/registro")
+    page.fill("#nombre", NUEVO_CLIENTE["nombre"])
+    page.fill("#correo", NUEVO_CLIENTE["correo"])
+    page.fill("#clave", NUEVO_CLIENTE["clave"])
+    page.fill("#confirmacion", NUEVO_CLIENTE["clave"])
+    foto(page, "11_registro_de_cuenta", completa=True)
+    page.click("button:has-text('Crear cuenta')")
+    page.wait_for_load_state("networkidle")
+
+    # Cliente: equipo, consulta iniciada desde el formulario y consulta guiada
     page.goto(BASE + "/cliente/equipos/nuevo")
     page.select_option("#tipo", "Portátil")
     page.fill("#marca", "Lenovo")
@@ -81,16 +106,12 @@ def escenario(page: Page) -> None:
     page.wait_for_load_state("networkidle")
     foto(page, "02_equipos_del_cliente")
 
-    page.goto(BASE + "/cliente/casos/nuevo")
-    page.fill("#descripcion", "El equipo se apaga solo cuando juego o abro programas pesados; "
-                              "después de unos minutos vuelve a encender sin problema.")
-    page.click("button:has-text('Abrir caso')")
-    page.wait_for_load_state("networkidle")
+    iniciar_consulta(page, "El equipo se apaga solo cuando juego o abro programas pesados; "
+                           "después de unos minutos vuelve a encender sin problema.")
     for i, valor in enumerate(RESPUESTAS):
         if i == 4:
             foto(page, "03_consulta_guiada")
-        page.click(f"button[name=valor][value={valor}]")
-        page.wait_for_load_state("networkidle")
+        responder(page, [valor])
     foto(page, "04_diagnostico_emitido", completa=True)
     salir(page)
 
@@ -108,6 +129,18 @@ def escenario(page: Page) -> None:
     page.click("button:has-text('Marcar como resuelto')")
     page.wait_for_load_state("networkidle")
     foto(page, "06_caso_resuelto", completa=True)
+    salir(page)
+
+    # Cliente otra vez: nuevas consultas y el historial de las últimas cinco con una elegida
+    entrar(page, "Cliente")
+    iniciar_consulta(page, "La computadora no enciende y no hace ningún ruido al presionar el botón.")
+    responder(page, ["no", "no", "no"])
+    iniciar_consulta(page, "Aparece una pantalla negra apenas se inicia Windows.")
+    responder(page, ["si"])                                   # esta consulta queda sin terminar
+    iniciar_consulta(page, "Internet se cae seguido y otros dispositivos funcionan bien.")
+    responder(page, ["no", "no", "si"])
+    page.goto(BASE + "/cliente/consultas?ver=1")
+    foto(page, "12_consultas_historial", completa=True)
     salir(page)
 
     # Experto: gránulo de conocimiento

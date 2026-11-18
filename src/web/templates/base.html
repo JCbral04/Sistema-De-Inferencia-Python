@@ -14,9 +14,9 @@
     <a href="{{ url_for('publico.panel') }}">Panel</a>
     {% set rol = usuario_actual.rol %}
     {% if rol == 'Cliente' %}
+      <a href="{{ url_for('cliente.consultas') }}">Consultas</a>
       <a href="{{ url_for('cliente.equipos') }}">Mis equipos</a>
       <a href="{{ url_for('casos.lista') }}">Mis casos</a>
-      <a href="{{ url_for('cliente.caso_nuevo') }}">Nuevo caso</a>
     {% elif rol == 'Técnico' %}
       <a href="{{ url_for('tecnico.cola') }}">Cola de casos</a>
       <a href="{{ url_for('casos.lista') }}">Mis casos</a>
@@ -48,5 +48,6 @@
   {% endwith %}
   {% block contenido %}{% endblock %}
 </main>
+<script src="{{ url_for('static', filename='app.js') }}" defer></script>
 </body>
 </html>

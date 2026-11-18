@@ -3,6 +3,10 @@
   9.0,
   4.95
  ],
+ "arbol_completo_texto": [
+  14.14,
+  8.3
+ ],
  "arbol_tronco": [
   9.0,
   4.95
@@ -35,6 +39,10 @@
   4.09,
   2.8
  ],
+ "modelo_relacional_completo": [
+  8.95,
+  5.92
+ ],
  "modelo_relacional_conocimiento": [
   8.7,
   3.09
@@ -52,8 +60,8 @@
   4.48
  ],
  "casos_de_uso_cliente_tecnico": [
-  8.53,
-  4.2
+  8.57,
+  4.25
  ],
  "casos_de_uso_experto_admin": [
   8.34,

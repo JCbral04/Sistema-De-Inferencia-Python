@@ -9,10 +9,11 @@
     <div class="dato"><div class="n">{{ equipos }}</div><div class="e">equipos registrados</div></div>
   </div>
   <div class="acciones" style="margin:0 0 18px">
-    <a class="btn" href="{{ url_for('cliente.caso_nuevo') }}">Abrir un caso</a>
+    <a class="btn" href="{{ url_for('cliente.consultas') }}">Iniciar una consulta</a>
     <a class="btn sec" href="{{ url_for('cliente.equipo_form') }}">Registrar equipo</a>
   </div>
   <h2>Mis últimos casos</h2>{{ tabla_casos(casos, "Aún no tiene casos.") }}
+  <p><a href="{{ url_for('cliente.consultas') }}">Ver mis últimas consultas y elegir una</a></p>
 {% elif usuario_actual.rol == 'Técnico' %}
   <div class="rejilla">
     <div class="dato"><div class="n">{{ cola|length }}</div><div class="e">casos en cola</div></div>

@@ -4,14 +4,15 @@
 {% block contenido %}
 <div class="tarjeta login">
   <h1>Cambiar contraseña</h1>
-  <p class="sub">Use al menos 8 caracteres. Si ingresó con una cuenta de demostración, cámbiela ahora.</p>
+  <p class="sub">Use al menos 8 caracteres, con letras y números. Si ingresó con una cuenta de demostración, cámbiela ahora.</p>
   <form method="post">{{ csrf() }}
     <label for="actual">Contraseña actual</label>
-    <input id="actual" type="password" name="actual" autocomplete="current-password" required autofocus>
+    <input id="actual" type="password" name="actual" data-clave autocomplete="current-password" maxlength="200" required autofocus>
     <label for="nueva">Contraseña nueva</label>
-    <input id="nueva" type="password" name="nueva" autocomplete="new-password" minlength="8" required>
+    <input id="nueva" type="password" name="nueva" data-clave autocomplete="new-password" minlength="8" maxlength="128" required>
     <label for="confirmacion">Confirmar contraseña nueva</label>
-    <input id="confirmacion" type="password" name="confirmacion" autocomplete="new-password" minlength="8" required>
+    <input id="confirmacion" type="password" name="confirmacion" data-clave autocomplete="new-password" minlength="8" maxlength="128" required>
+    <label class="casilla"><input type="checkbox" class="ver-clave"> Mostrar contraseñas</label>
     <div class="acciones"><button class="btn" type="submit">Guardar</button>
       <a href="{{ url_for('publico.panel') }}">Cancelar</a></div>
   </form>

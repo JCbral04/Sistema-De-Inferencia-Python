@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from src.dao.base import BaseDAO
 from src.domain.models import (
-    Caso, Consulta, Diagnostico, Equipo, Respuesta, Seguimiento,
+    Caso, Consulta, Diagnostico, Equipo, Respuesta, ResumenConsulta, Seguimiento,
 )
 
 
@@ -82,6 +82,23 @@ class CasoDAO(BaseDAO):
                WHERE id = ? AND tecnico_id IS NULL AND estado = 'Diagnosticado'""",
             (tecnico_id, caso_id))
         return cursor.rowcount == 1
+
+    def resumen_consultas(self, cliente_id: int, limite: int = 5) -> list[ResumenConsulta]:
+        """Las últimas ``limite`` consultas del cliente (la más reciente primero), con su diagnóstico si lo hay."""
+        return [ResumenConsulta(**dict(f)) for f in self._todos(
+            """SELECT c.id AS caso_id, e.id AS equipo_id, e.marca || ' ' || e.modelo AS equipo,
+                      c.descripcion, c.abierto_en AS fecha, c.estado AS estado_caso,
+                      q.estado AS estado_consulta,
+                      (SELECT COUNT(*) FROM respuesta r WHERE r.consulta_id = q.id) AS preguntas,
+                      h.codigo AS falla_codigo, h.nombre AS falla, h.severidad AS severidad,
+                      d.factor_certeza AS factor_certeza
+               FROM caso c
+               JOIN equipo e ON e.id = c.equipo_id
+               LEFT JOIN consulta q ON q.id = (SELECT MAX(id) FROM consulta WHERE caso_id = c.id)
+               LEFT JOIN diagnostico d ON d.consulta_id = q.id
+               LEFT JOIN hipotesis h ON h.id = d.hipotesis_id
+               WHERE c.cliente_id = ?
+               ORDER BY c.id DESC LIMIT ?""", (cliente_id, limite))]
 
     def contar_por_estado(self) -> dict[str, int]:
         return {f["estado"]: f["n"] for f in self._todos(

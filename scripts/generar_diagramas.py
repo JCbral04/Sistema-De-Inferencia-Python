@@ -1,8 +1,8 @@
 """Genera los diagramas del manual técnico y el modelo relacional exportado del SGBD.
 
 Requiere el ejecutable `dot` de Graphviz, matplotlib y Pillow. Salida:
-  docs/diagramas/*.png y *.svg, docs/salidas/modelo_relacional.txt y
-  database/modelo_relacional.sql (volcado del esquema real de SQLite).
+  docs/diagramas/*.png y *.svg (y *.pdf del árbol con texto y del modelo relacional completo),
+  docs/salidas/modelo_relacional.txt y database/modelo_relacional.sql (volcado del esquema real de SQLite).
 
 Los diagramas están dimensionados para la hoja carta del manual (APA 7): los verticales caben
 en 6,5 pulgadas de ancho y los horizontales en 9; así el texto se imprime a su tamaño real
@@ -13,6 +13,7 @@ from __future__ import annotations
 import functools
 import html
 import json
+import re
 import sqlite3
 import subprocess
 import textwrap
@@ -36,6 +37,7 @@ FUENTE = "Arial"          # fontconfig la resuelve a Liberation Sans (misma mét
 DPI = 200
 VERTICAL = (6.5, 7.8)     # pulgadas útiles de una página vertical (sin contar el título de la figura)
 HORIZONTAL = (9.0, 5.4)   # ídem, página horizontal
+COMPLETO = (9.0, 5.15)    # ídem, con el rótulo de dos líneas y una nota de una línea (árbol y modelo completos)
 
 TABLAS_CONOCIMIENTO = ["experto", "categoria", "hipotesis", "sintoma", "nodo_arbol", "regla",
                        "regla_condicion"]
@@ -61,23 +63,30 @@ node  [fontname="{FUENTE}", fontsize=9.5, color="black", fontcolor="black"];
 edge  [fontname="{FUENTE}", fontsize=9, color="black", fontcolor="black"];"""
 
 
-def registrar_medida(nombre: str, limite: tuple[float, float]) -> None:
+def registrar_medida(nombre: str, limite: tuple[float, float], pt: float | None = None) -> None:
+    """Anota el tamaño del PNG. Si ``pt`` (tamaño de la letra) está presente, la figura se reducirá a propósito
+    para caber en la página y el aviso indica a cuántos puntos queda el texto."""
     ruta = SALIDA / f"{nombre}.png"
     imagen = Image.open(ruta)
     ancho, alto = imagen.size[0] / DPI, imagen.size[1] / DPI
     imagen.save(ruta, dpi=(DPI, DPI))
     MEDIDAS[nombre] = (round(ancho, 2), round(alto, 2))
-    aviso = "" if ancho <= limite[0] + 0.01 and alto <= limite[1] + 0.01 else "   <-- EXCEDE EL ESPACIO"
+    aviso = ""
+    if ancho > limite[0] + 0.01 or alto > limite[1] + 0.01:
+        escala = min(limite[0] / ancho, limite[1] / alto)
+        aviso = (f"   (se reduce al {escala:.0%} en la página: texto de {pt * escala:.1f} pt)" if pt
+                 else "   <-- EXCEDE EL ESPACIO")
     print(f"ok {nombre:34s} {ancho:5.2f} x {alto:5.2f} pulg{aviso}")
 
 
-def render(nombre: str, dot: str, limite: tuple[float, float]) -> None:
+def render(nombre: str, dot: str, limite: tuple[float, float], pdf: bool = False, pt: float | None = None) -> None:
+    """Genera PNG y SVG (y PDF vectorial si ``pdf``) del diagrama descrito en lenguaje DOT."""
     SALIDA.mkdir(parents=True, exist_ok=True)
-    for formato in ("png", "svg"):
+    for formato in ("png", "svg") + (("pdf",) if pdf else ()):
         subprocess.run(["dot", f"-T{formato}", f"-Gdpi={DPI if formato == 'png' else 72}",
                         "-o", str(SALIDA / f"{nombre}.{formato}")],
                        input=dot.encode("utf-8"), check=True)
-    registrar_medida(nombre, limite)
+    registrar_medida(nombre, limite, pt)
 
 
 # ====================================================================== árbol de decisión
@@ -315,6 +324,63 @@ def dot_subarbol(a: Arbol, raices: list[str]) -> str:
     return "\n".join(lineas)
 
 
+TAMANO_ARBOL_TEXTO = 7.5      # puntos de la letra en el tamaño natural del dibujo
+
+
+def envolver_sin_cortar(texto: str, ancho: int) -> list[str]:
+    """Reparte el texto en líneas de hasta ``ancho`` caracteres sin partir palabras; solo permite el corte
+    justo después de una barra («ventilador/disipador»)."""
+    lineas, actual = [], ""
+    for palabra in texto.split():
+        partes = re.findall(r"[^/]+/?|/", palabra)
+        for n, parte in enumerate(partes):
+            candidata = actual + (" " if n == 0 and actual else "") + parte
+            if actual and len(candidata) > ancho:
+                lineas.append(actual)
+                actual = parte
+            else:
+                actual = candidata
+    if actual:
+        lineas.append(actual)
+    return lineas or [""]
+
+
+def rotulo_de_rama(rama: str) -> str:
+    """Sí o No sobre fondo blanco, para que la línea del árbol no atraviese la letra."""
+    return ('<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="1" BGCOLOR="white">'
+            f'<TR><TD>{RAMA[rama]}</TD></TR></TABLE>>')
+
+
+def dot_arbol_texto(a: Arbol, ancho_pregunta: int = 20, ancho_falla: int = 14, ranksep: float = 0.16) -> str:
+    """Árbol completo con el texto de cada pregunta y de cada falla (con su severidad), de arriba hacia abajo.
+
+    Las preguntas son rectángulos y las fallas, rectángulos de esquinas redondeadas. ``ordering=out`` deja la
+    rama Sí a la izquierda y la No a la derecha de cada pregunta; el rótulo de cada rama se coloca junto a la
+    punta de la flecha, hacia afuera del trazo."""
+    fs = TAMANO_ARBOL_TEXTO
+    lineas = ["digraph arbol {", CABECERA,
+              f"rankdir=TB; ordering=out; nodesep=0.05; ranksep={ranksep}; newrank=true;",
+              f'node [shape=box, margin="0.06,0.035", fontsize={fs}, height=0.1, width=0.1];',
+              f"edge [fontsize={fs - 0.5}, arrowsize=0.4, labeldistance=1.0];"]
+
+    def agregar(codigo: str) -> None:
+        if a.es_hoja(codigo):
+            h = a.hip[codigo]
+            nombre = html_lineas(envolver_sin_cortar(h["nombre"], ancho_falla))
+            lineas.append(f'{codigo} [style=rounded, label=<<B>{codigo}</B> {nombre}<BR/>{esc(h["severidad"])}>];')
+            return
+        n = a.nodos[codigo]
+        texto = html_lineas(envolver_sin_cortar(a.etiqueta(codigo), ancho_pregunta))
+        lineas.append(f'{codigo} [label=<<B>{codigo}</B> {texto}>];')
+        for rama, angulo in (("si", 35), ("no", -35)):
+            lineas.append(f'{codigo} -> {n[rama]} [headlabel={rotulo_de_rama(rama)}, labelangle={angulo}];')
+            agregar(n[rama])
+
+    agregar(a.raiz)
+    lineas.append("}")
+    return "\n".join(lineas)
+
+
 # ====================================================================== modelo relacional
 def introspeccion(con: sqlite3.Connection) -> dict:
     tablas = [r[0] for r in con.execute(
@@ -362,7 +428,7 @@ def exportar_modelo_texto(con: sqlite3.Connection, info: dict) -> None:
 TIPOS = {"integer": "int", "text": "text", "real": "real"}
 
 
-def tabla_html(tabla: str, d: dict, completa: bool = True, externa: bool = False) -> str:
+def tabla_html(tabla: str, d: dict, completa: bool = True, externa: bool = False, relleno: int = 2) -> str:
     """Tabla del modelo: nombre arriba, una fila por columna (nombre, tipo y clave); borde punteado si es externa."""
     estilo = ' STYLE="dashed"' if externa else ""
     filas = []
@@ -374,16 +440,20 @@ def tabla_html(tabla: str, d: dict, completa: bool = True, externa: bool = False
             f'<TR><TD ALIGN="LEFT" PORT="{esc(c[1])}">{nombre}</TD>'
             f'<TD ALIGN="LEFT">{TIPOS.get(c[2].lower(), c[2].lower())}</TD>'
             f'<TD PORT="{esc(c[1])}_k"><B>{clave or "&nbsp;"}</B></TD></TR>')
-    return (f'<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="2"{estilo}>'
+    return (f'<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="{relleno}"{estilo}>'
             f'<TR><TD COLSPAN="3" ALIGN="CENTER"><B>{esc(tabla)}</B></TD></TR><HR/>{"".join(filas)}</TABLE>')
 
 
-def dot_modelo(info: dict, tablas: list[str], externas: list[str], razon: str) -> str:
-    lineas = ["digraph mr {", CABECERA, f"rankdir=LR; nodesep=0.28; ranksep={razon}; splines=true;",
+def dot_modelo(info: dict, tablas: list[str], externas: list[str], razon: str, relleno: int = 2,
+               nodesep: float = 0.28) -> str:
+    """Modelo relacional de las tablas indicadas (más las ``externas``, mostradas solo con su clave primaria).
+
+    ``relleno`` y ``nodesep`` controlan el espacio dentro y entre las tablas; se reducen para el modelo completo."""
+    lineas = ["digraph mr {", CABECERA, f"rankdir=LR; nodesep={nodesep}; ranksep={razon}; splines=true;",
               'node [shape=none, margin=0, fontsize=8.5];',
               'edge [arrowtail=crow, arrowhead=tee, dir=both, arrowsize=0.7];']
     for t in tablas:
-        lineas.append(f'{t} [label=<{tabla_html(t, info[t])}>];')
+        lineas.append(f'{t} [label=<{tabla_html(t, info[t], relleno=relleno)}>];')
     for t in externas:
         lineas.append(f'{t} [label=<{tabla_html(t, info[t], completa=False, externa=True)}>];')
     visibles = set(tablas) | set(externas)
@@ -398,6 +468,9 @@ def dot_modelo(info: dict, tablas: list[str], externas: list[str], razon: str) -
 def modelo_relacional(con: sqlite3.Connection) -> None:
     info = introspeccion(con)
     exportar_modelo_texto(con, info)
+    # Las 15 tablas juntas, apretadas para que quepan en una página horizontal (se reduce a ~7 pt).
+    render("modelo_relacional_completo", dot_modelo(info, list(info), [], "0.25", relleno=1, nodesep=0.1),
+           COMPLETO, pdf=True, pt=8.5)
     render("modelo_relacional_conocimiento", dot_modelo(info, TABLAS_CONOCIMIENTO, [], "0.5"), HORIZONTAL)
     render("modelo_relacional_transaccional_1",
            dot_modelo(info, ["rol", "usuario", "equipo", "caso", "seguimiento"], [], "0.5"), HORIZONTAL)
@@ -410,7 +483,7 @@ def modelo_relacional(con: sqlite3.Connection) -> None:
 
 def arquitectura() -> None:
     capas = [
-        ("Presentación", "Flask: rutas por rol (src/web/rutas.py) · plantillas Jinja2 · sesión, CSRF y control de roles"),
+        ("Presentación", "Flask: rutas por rol (src/web/rutas.py) · plantillas Jinja2 · sesión, CSRF, límite de intentos y control de roles"),
         ("Servicios", "AutenticacionService · EquipoService · DiagnosticoService · MotorInferencia"),
         ("Acceso a datos (DAO)", "BaseDAO y un DAO por tabla o grupo de tablas · entidades inmutables (src/domain)"),
         ("Base de datos", "SQLite 3: base de conocimiento (7 tablas) y sistema transaccional (8 tablas)"),
@@ -472,8 +545,8 @@ def casos_de_uso(nombre: str, izquierda: dict[str, list[str]], derecha: dict[str
 def diagramas_casos_de_uso() -> None:
     casos_de_uso(
         "casos_de_uso_cliente_tecnico",
-        {"Cliente": ["Registrarse e iniciar sesión", "Gestionar equipos", "Abrir caso",
-                     "Ejecutar consulta de diagnóstico", "Consultar historial de casos"]},
+        {"Cliente": ["Registrarse e iniciar sesión", "Gestionar equipos", "Iniciar consulta (abre el caso)",
+                     "Ejecutar consulta de diagnóstico", "Ver las últimas 5 consultas y elegir una"]},
         {"Técnico": ["Consultar cola de casos", "Tomar caso", "Registrar seguimiento",
                      "Resolver caso y validar diagnóstico"]},
         [("Ejecutar consulta de diagnóstico", "Inferir diagnóstico (árbol y reglas)")], HORIZONTAL)
@@ -750,6 +823,7 @@ def main() -> None:
         viejo_archivo.unlink()
     arbol = Arbol(k)
     dibujar_completo(arbol)
+    render("arbol_completo_texto", dot_arbol_texto(arbol), COMPLETO, pdf=True, pt=TAMANO_ARBOL_TEXTO)
     dibujar_tronco(arbol)
     for nombre, raices in (("arbol_N02", ["N02"]), ("arbol_N06_N08", ["N06", "N08"]), ("arbol_N11", ["N11"]),
                            ("arbol_N16", ["N16"]), ("arbol_N20", ["N20"]), ("arbol_N25", ["N25"]),

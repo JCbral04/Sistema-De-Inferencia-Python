@@ -15,12 +15,15 @@ SEVERIDADES = ["Baja", "Media", "Alta", "Crítica"]
 
 # --------------------------------------------------------------------------- contenido tabular
 PROCESOS = [
-    ("P01", "Autenticación y control de acceso", "Todos", "Correo y contraseña", "Sesión con rol"),
+    ("P01", "Registro, autenticación y control de acceso", "Todos", "Datos de la cuenta; correo y contraseña",
+     "Cuenta creada y sesión con rol"),
     ("P02", "Gestión de usuarios y roles", "Administrador", "Datos del usuario y rol",
      "Usuario creado, activado o desactivado"),
     ("P03", "Gestión de equipos", "Cliente", "Tipo, marca, modelo y serial",
      "Equipo registrado, editado o eliminado"),
-    ("P04", "Apertura de casos", "Cliente", "Equipo y descripción del problema", "Caso en estado Abierto"),
+    ("P04", "Inicio de consultas, apertura de casos e historial", "Cliente",
+     "Equipo y descripción del problema; consulta elegida del historial",
+     "Caso en estado Abierto; detalle de la consulta elegida"),
     ("P05", "Consulta de diagnóstico (navegación del árbol)", "Cliente", "Respuestas de sí o no",
      "Siguiente pregunta o conclusión"),
     ("P06", "Inferencia por reglas y emisión del diagnóstico", "Sistema", "Evidencia de la consulta",
@@ -37,14 +40,21 @@ PROCESOS = [
 
 REQ_FUNCIONALES = [
     ("El sistema permitirá iniciar y cerrar sesión con correo y contraseña.", "P01"),
-    ("El sistema permitirá que una persona cree su cuenta; las cuentas nuevas tendrán el rol Cliente.", "P01"),
+    ("El sistema permitirá que una persona sin cuenta se registre con su nombre, su correo y una contraseña que "
+     "confirma; las cuentas nuevas tendrán siempre el rol Cliente y la sesión se iniciará al registrarse.", "P01"),
+    ("El sistema bloqueará temporalmente el ingreso después de cinco intentos fallidos seguidos con el mismo "
+     "correo desde el mismo origen, e informará cuántos minutos faltan para volver a intentar.", "P01"),
     ("Todo usuario con sesión podrá cambiar su contraseña indicando la actual.", "P01"),
     ("El sistema restringirá cada función según el rol del usuario.", "P01"),
     ("El administrador podrá crear usuarios con cualquier rol y cambiar el rol o el estado (activo o inactivo) "
      "de los demás usuarios; no podrá modificar su propia cuenta de ese modo.", "P02"),
     ("El cliente podrá registrar, editar y eliminar sus equipos; no podrá eliminar un equipo que tenga casos.", "P03"),
-    ("El cliente podrá abrir un caso sobre uno de sus equipos con una descripción del problema.", "P04"),
-    ("El cliente podrá consultar el historial y el detalle de sus casos, sin ver los de otros clientes.", "P04"),
+    ("El cliente podrá iniciar una consulta desde una sola pantalla: elige uno de sus equipos y describe el "
+     "problema, y el sistema abre el caso y lo lleva a la consulta guiada.", "P04"),
+    ("El cliente verá en esa pantalla sus cinco consultas más recientes, de la más nueva a la más antigua, con el "
+     "equipo, la fecha, el estado y el diagnóstico; podrá elegir una y revisar su detalle (diagnóstico, solución "
+     "y respuestas dadas), abrir el caso completo o consultar de nuevo el mismo equipo.", "P04"),
+    ("El cliente podrá consultar la lista y el detalle de todos sus casos, sin ver los de otros clientes.", "P04"),
     ("El sistema conducirá la consulta mostrando una pregunta de sí o no por vez, a partir de la raíz del árbol.", "P05"),
     ("El sistema mostrará cuántas reglas siguen siendo compatibles con las respuestas dadas.", "P05"),
     ("El cliente podrá corregir su última respuesta durante la consulta.", "P05"),
@@ -68,10 +78,29 @@ REQ_FUNCIONALES = [
 
 REQ_NO_FUNCIONALES = [
     ("Seguridad de las credenciales",
-     "Las contraseñas se guardan con hash (Werkzeug), nunca en texto claro, y deben tener al menos ocho "
-     "caracteres. La cookie de sesión es HttpOnly y SameSite=Lax, y los formularios que modifican datos llevan "
-     "un token CSRF por sesión {c:owasp}.",
-     "Revisión del código y prueba de rechazo de formularios sin token"),
+     "Las contraseñas se guardan con hash (Werkzeug), nunca en texto claro. Al registrarse o cambiarla deben "
+     "tener entre 8 y 128 caracteres, combinar letras y números, no figurar en una lista de contraseñas "
+     "comunes y no repetir el correo ni el nombre. Si el correo no existe, el ingreso tarda lo mismo y muestra "
+     "el mismo mensaje que con una contraseña errada, para no revelar qué cuentas existen {c:owasp}.",
+     "Pruebas de la política de contraseñas, del hash almacenado y del mensaje único de error"),
+    ("Protección contra la adivinanza de contraseñas",
+     "Cinco intentos fallidos en 15 minutos con el mismo correo y origen bloquean ese ingreso durante cinco "
+     "minutos; veinte desde un mismo origen bloquean todo ingreso desde él y veinte registros por hora "
+     "bloquean nuevos registros. El control vive en la memoria del proceso y se reinicia con el servidor "
+     "{c:owasp}.",
+     "Pruebas del limitador con reloj simulado y del bloqueo tras cinco intentos"),
+    ("Sesión segura",
+     "La cookie de sesión es HttpOnly y SameSite=Lax, caduca tras 30 minutos de inactividad y puede marcarse "
+     "Secure al servir por HTTPS (variable COOKIE_SEGURA). La clave que la firma se toma de SECRET_KEY o de un "
+     "archivo con permisos 0600 junto a la base, de modo que las sesiones sobreviven a un reinicio. Los "
+     "formularios que modifican datos llevan un token CSRF por sesión {c:owasp}.",
+     "Pruebas de la cookie, de su caducidad, de la clave persistente y del rechazo de formularios sin token"),
+    ("Cabeceras de seguridad",
+     "Toda respuesta incluye una Content-Security-Policy restrictiva, X-Frame-Options DENY, "
+     "X-Content-Type-Options nosniff y Referrer-Policy same-origin. Las páginas dinámicas se envían con "
+     "Cache-Control no-store, para que el botón «atrás» no muestre datos después de cerrar la sesión, y cada "
+     "petición se limita a 64 KB {c:owasp}.",
+     "Prueba de las cabeceras en páginas dinámicas y estáticas"),
     ("Control de acceso",
      "Toda ruta valida la sesión y el rol en el servidor; un cliente no puede ver los casos ni los equipos de otro.",
      "Pruebas de acceso por rol y de casos ajenos"),
@@ -97,15 +126,20 @@ REQ_NO_FUNCIONALES = [
      "Se ejecuta con Python 3.10 o superior y Flask, sin servidor de base de datos: SQLite guarda todo en un "
      "solo archivo.",
      "Análisis de la versión mínima de Python; ejecución en Linux con Python 3.13"),
+    ("Hora local",
+     "La base guarda las fechas en UTC y la aplicación las muestra en hora de Colombia (America/Bogota), "
+     "configurable con la variable ZONA_HORARIA.",
+     "Prueba de la fecha mostrada en el historial"),
     ("Trazabilidad",
      "Cada diagnóstico conserva la consulta, las respuestas en orden, la regla disparada, el factor de "
      "certeza y la fecha de emisión.",
      "Detalle del caso en la aplicación"),
     ("Calidad verificable",
      "El conocimiento, el motor, los procesos y las rutas web se prueban de forma automática.",
-     "Ejecución de las 27 pruebas"),
+     "Ejecución de las 55 pruebas"),
     ("Compatibilidad",
-     "Las páginas son HTML y CSS sin JavaScript obligatorio, de modo que funcionan en los navegadores actuales.",
+     "Las páginas son HTML y CSS; el único script, opcional, permite mostrar la contraseña mientras se escribe, "
+     "de modo que todo funciona en los navegadores actuales aunque no se ejecute.",
      "Revisión de las plantillas"),
     ("Consistencia del conocimiento",
      "Las reglas son mutuamente excluyentes y completas: cada recorrido del árbol dispara exactamente una "
@@ -141,7 +175,8 @@ TABLAS_BD = [
 ]
 
 ROLES = [
-    ("Cliente", "Dueño del equipo: registra equipos, abre casos y responde la consulta de diagnóstico.",
+    ("Cliente", "Dueño del equipo: se registra, registra equipos, inicia consultas, revisa sus últimas cinco consultas y "
+     "responde la consulta de diagnóstico.",
      "P01, P03, P04, P05"),
     ("Técnico", "Atiende los casos ya diagnosticados, registra el seguimiento y valida el diagnóstico.",
      "P01, P07"),
@@ -153,8 +188,9 @@ ROLES = [
 
 PERMISOS = [  # función, cliente, técnico, experto, administrador
     ("Iniciar sesión y cambiar la contraseña", "●", "●", "●", "●"),
-    ("Registrar equipos y abrir casos", "●", "", "", ""),
+    ("Registrar equipos e iniciar consultas (abre el caso)", "●", "", "", ""),
     ("Ejecutar la consulta de diagnóstico", "●", "", "", ""),
+    ("Ver las últimas 5 consultas y elegir una", "●", "", "", ""),
     ("Consultar casos", "Propios", "Asignados y en cola", "", "Todos"),
     ("Ver la cola de casos y tomar un caso", "", "●", "", ""),
     ("Registrar seguimiento y resolver casos asignados", "", "●", "", ""),
@@ -165,14 +201,19 @@ PERMISOS = [  # función, cliente, técnico, experto, administrador
 ]
 
 CASOS_DE_USO = [  # caso de uso, actor, descripción, procesos
-    ("Registrarse e iniciar sesión", "Cliente", "Crea su cuenta e ingresa al sistema.", "P01"),
+    ("Registrarse e iniciar sesión", "Cliente",
+     "Crea su cuenta con una contraseña confirmada e ingresa; el ingreso se bloquea tras cinco intentos fallidos.",
+     "P01"),
     ("Gestionar equipos", "Cliente", "Registra, edita y elimina sus equipos.", "P03"),
-    ("Abrir caso", "Cliente", "Reporta el problema de uno de sus equipos.", "P04"),
+    ("Iniciar consulta (abre el caso)", "Cliente",
+     "Elige un equipo y describe el problema desde una sola pantalla; el sistema abre el caso.", "P04"),
     ("Ejecutar consulta de diagnóstico", "Cliente",
      "Responde preguntas de sí o no hasta obtener el diagnóstico; incluye inferir el diagnóstico.", "P05"),
     ("Inferir diagnóstico (árbol y reglas)", "Sistema", "Evalúa las reglas con las respuestas y emite la falla, "
      "la solución y el factor de certeza.", "P06"),
-    ("Consultar historial de casos", "Cliente", "Revisa el estado, el diagnóstico y los seguimientos.", "P04"),
+    ("Ver las últimas 5 consultas y elegir una", "Cliente",
+     "Revisa sus cinco consultas más recientes y elige una para ver su diagnóstico, solución y respuestas.",
+     "P04"),
     ("Consultar cola de casos", "Técnico", "Ve los casos diagnosticados que no tienen técnico.", "P07"),
     ("Tomar caso", "Técnico", "Se asigna un caso de forma exclusiva.", "P07"),
     ("Registrar seguimiento", "Técnico", "Anota las acciones realizadas y sus observaciones.", "P07"),
@@ -202,18 +243,22 @@ CARPETAS = [
 
 CAPTURAS_APP = [  # archivo, clave, título, nota
     ("01_ingreso", "cap01", "Pantalla de ingreso", None),
-    ("02_equipos_del_cliente", "cap02", "Equipos del cliente", None),
-    ("03_consulta_guiada", "cap03", "Consulta guiada, una pregunta de sí o no por pantalla",
+    ("11_registro_de_cuenta", "cap02", "Registro de una cuenta nueva",
+     "Formulario con la confirmación de la contraseña; la cuenta se crea siempre con el rol Cliente."),
+    ("02_equipos_del_cliente", "cap03", "Equipos del cliente", None),
+    ("12_consultas_historial", "cap04", "Consultas del cliente: formulario, últimas 5 consultas y consulta elegida",
+     "La fila resaltada es la consulta elegida; su detalle aparece debajo del historial."),
+    ("03_consulta_guiada", "cap05", "Consulta guiada, una pregunta de sí o no por pantalla",
      "Captura tomada durante la consulta del caso de ejemplo, un equipo que se apaga solo bajo carga."),
-    ("04_diagnostico_emitido", "cap04", "Diagnóstico emitido para el caso",
+    ("04_diagnostico_emitido", "cap06", "Diagnóstico emitido para el caso",
      "El recorrido de esta consulta corresponde a la regla R17 (falla F17). La aplicación muestra el factor de "
      "certeza como porcentaje: 0.78 se presenta como 78 %."),
-    ("05_cola_del_tecnico", "cap05", "Cola de casos del técnico", None),
-    ("06_caso_resuelto", "cap06", "Caso resuelto por el técnico", None),
-    ("07_fallas_del_experto", "cap07", "Lista de fallas del experto", None),
-    ("08_granulo_de_conocimiento", "cap08", "Gránulo de conocimiento de la falla F17", None),
-    ("09_usuarios_del_administrador", "cap09", "Usuarios del administrador", None),
-    ("10_reportes", "cap10", "Reportes del administrador", None),
+    ("05_cola_del_tecnico", "cap07", "Cola de casos del técnico", None),
+    ("06_caso_resuelto", "cap08", "Caso resuelto por el técnico", None),
+    ("07_fallas_del_experto", "cap09", "Lista de fallas del experto", None),
+    ("08_granulo_de_conocimiento", "cap10", "Gránulo de conocimiento de la falla F17", None),
+    ("09_usuarios_del_administrador", "cap11", "Usuarios del administrador", None),
+    ("10_reportes", "cap12", "Reportes del administrador", None),
 ]
 
 PSEUDOCODIGO = """\
@@ -402,8 +447,11 @@ def construir(previo: dict, datos: dict) -> DocumentoAPA:
     en_subarboles = {h for nodo in RAICES for h in hojas_de[nodo]}
     sueltas = [h["codigo"] for h in hip if h["codigo"] not in en_subarboles]
     d.p("La {f:arbol_completo} muestra el árbol entero en una sola página, con cada nodo rotulado por su código; la "
-        "rama Sí queda siempre a la izquierda de la rama No. A esa escala no se alcanza a leer el texto de las "
-        "preguntas, así que el árbol se presenta además en dos niveles de detalle. El tronco ({f:tronco}) es la "
+        "rama Sí queda siempre a la izquierda de la rama No. La {f:arbol_texto} es el mismo árbol con el texto de "
+        f"cada pregunta y de cada falla y la severidad de las fallas. Al reunir los {n_nodos} nodos en una sola "
+        "página, el texto queda pequeño en la hoja impresa; por eso esa figura se entrega también como PDF "
+        "vectorial (`docs/diagramas/arbol_completo_texto.pdf`), que se amplía sin perder nitidez, y el árbol se "
+        "presenta además en dos niveles de detalle. El tronco ({f:tronco}) es la "
         f"cadena de {len(tronco)} preguntas generales que se recorre desde la raíz mientras las respuestas no "
         "desvíen la consulta: en cada pregunta del tronco, una rama lleva a un subárbol o a una falla y la otra "
         "continúa por el tronco; en la última pregunta, las dos ramas salen del tronco. "
@@ -427,10 +475,15 @@ def construir(previo: dict, datos: dict) -> DocumentoAPA:
             [0.8, 2.25, 1.3, 1.05, 1.1], "lllll", nota=nota_sub)
 
     nota_igual = "Mismos símbolos que en la Figura {#f:tronco}. FC = factor de certeza. Elaboración propia."
-    diagrama(d, "arbol_completo", "Árbol de decisión completo", "arbol_completo",
+    diagrama(d, "arbol_completo", "Árbol de decisión completo con los códigos de los nodos", "arbol_completo",
              "N = pregunta; F = falla. Las preguntas están en el {a:A} y las fallas, en el {a:B}. "
              "Elaboración propia.",
              f"Árbol de decisión completo: {n_preg} preguntas y {n_fallas} fallas, con sus ramas Sí y No.")
+    diagrama(d, "arbol_texto", "Árbol de decisión completo con el texto de cada nodo", "arbol_completo_texto",
+             "Los rectángulos son preguntas y los de esquinas redondeadas, fallas con su severidad. "
+             "Elaboración propia.",
+             f"Árbol de decisión completo: {n_preg} preguntas y {n_fallas} fallas con su texto y su severidad, "
+             "unidas por las ramas Sí y No.")
     diagrama(d, "tronco", "Tronco del árbol de decisión", "arbol_tronco",
              "Entre paréntesis, las fallas de cada subárbol. N = nodo; S = síntoma. Elaboración propia.",
              f"Diagrama del tronco del árbol: {len(tronco)} preguntas en cadena, de las que salen ramas hacia "
@@ -508,18 +561,24 @@ def construir(previo: dict, datos: dict) -> DocumentoAPA:
     d.h2("Modelo relacional exportado del sistema gestor")
     d.p("El modelo relacional se exportó del propio sistema gestor. Los diagramas se generan leyendo las tablas, las "
         "columnas y las claves foráneas con las instrucciones `PRAGMA table_info` y `PRAGMA foreign_key_list` y se "
-        "dibujan con Graphviz {c:graphviz}. La base de conocimiento se muestra en la {f:mr_conocimiento} y el "
-        "sistema transaccional, en las figuras {#f:mr_trans1} y {#f:mr_trans2}. El script SQL del esquema, volcado "
-        "de la tabla `sqlite_master`, está en el {a:C}, y el modelo en notación textual, en el {a:D}.")
-    nota_mr = ("PK = clave primaria; FK = clave foránea; UK = valor único. La pata de gallo marca el lado «muchos» "
-               "de la relación y la barra, el lado «uno». Elaboración propia a partir del esquema real de SQLite.")
+        f"dibujan con Graphviz {{c:graphviz}}. La {{f:mr_completo}} reúne las {len(TABLAS_BD)} tablas en una sola "
+        "figura; para leer sus columnas con más comodidad, la base de conocimiento se muestra en la "
+        "{f:mr_conocimiento} y el sistema transaccional, en las figuras {#f:mr_trans1} y {#f:mr_trans2}. En todas "
+        "ellas, la pata de gallo marca el lado «muchos» de la relación y la barra, el lado «uno». El script SQL del "
+        "esquema, volcado de la tabla `sqlite_master`, está en el {a:C}, y el modelo en notación textual, en el "
+        "{a:D}.")
+    diagrama(d, "mr_completo", "Modelo relacional completo: base de conocimiento y sistema transaccional",
+             "modelo_relacional_completo",
+             "PK = clave primaria; FK = clave foránea; UK = valor único. Elaboración propia.",
+             f"Modelo relacional con las {len(TABLAS_BD)} tablas de la base de datos, sus claves y sus relaciones.")
     diagrama(d, "mr_conocimiento", "Modelo relacional de la base de conocimiento", "modelo_relacional_conocimiento",
-             nota_mr, "Modelo relacional de las siete tablas de conocimiento con sus claves y relaciones.")
+             "Mismos símbolos que en la Figura {#f:mr_completo}. Elaboración propia a partir del esquema real de "
+             "SQLite.", "Modelo relacional de las siete tablas de conocimiento con sus claves y relaciones.")
     diagrama(d, "mr_trans1", "Modelo relacional del sistema transaccional: usuarios, equipos y casos",
-             "modelo_relacional_transaccional_1", "Mismos símbolos que en la Figura {#f:mr_conocimiento}. "
+             "modelo_relacional_transaccional_1", "Mismos símbolos que en la Figura {#f:mr_completo}. "
              "Elaboración propia.", "Modelo relacional de las tablas rol, usuario, equipo, caso y seguimiento.")
     diagrama(d, "mr_trans2", "Modelo relacional del sistema transaccional: consultas y diagnósticos",
-             "modelo_relacional_transaccional_2", "Mismos símbolos que en la Figura {#f:mr_conocimiento}. "
+             "modelo_relacional_transaccional_2", "Mismos símbolos que en la Figura {#f:mr_completo}. "
              "Elaboración propia.", "Modelo relacional de las tablas consulta, respuesta y diagnostico.")
 
     # ======================================================================== carga y gránulos
@@ -637,7 +696,7 @@ def construir(previo: dict, datos: dict) -> DocumentoAPA:
         "Administrador ({f:cu_experto_admin}).")
     d.tabla("casos_uso", "Casos de uso de alto nivel", ["Caso de uso", "Actor", "Descripción", "Proceso"],
             [list(c) for c in CASOS_DE_USO], [1.75, 1.15, 2.95, 0.65], "llll", juntas=False)
-    nota_cu = ("Excepto el registro, todos los casos de uso exigen una sesión iniciada y un rol válido. "
+    nota_cu = ("Excepto el registro y el ingreso, todos los casos de uso exigen una sesión iniciada y un rol válido. "
                "Elaboración propia con base en UML {c:omg}.")
     diagrama(d, "cu_cliente_tecnico", "Casos de uso de alto nivel de los actores Cliente y Técnico",
              "casos_de_uso_cliente_tecnico", nota_cu + " «include» indica que el caso de origen incluye al otro.",
@@ -671,13 +730,60 @@ def construir(previo: dict, datos: dict) -> DocumentoAPA:
     d.h2("Arquitectura")
     d.p("La aplicación sigue una arquitectura en tres capas sobre la base de datos ({f:arquitectura}): presentación, "
         "servicios y acceso a datos {c:sommerville}. La capa de presentación es una aplicación Flask {c:pallets} "
-        "con una ruta por función y plantillas Jinja2; en cada petición valida la sesión y el rol, y protege los "
-        "formularios con un token CSRF por sesión {c:owasp}. La capa de servicios concentra las reglas de negocio "
+        "con una ruta por función y plantillas Jinja2; en cada petición valida la sesión y el rol, protege los "
+        "formularios con un token CSRF por sesión, limita los intentos de ingreso y agrega las cabeceras de "
+        "seguridad {c:owasp}. La capa de servicios concentra las reglas de negocio "
         "(`AutenticacionService`, `EquipoService` y `DiagnosticoService`) y el motor de inferencia "
         "(`MotorInferencia`). La capa de acceso a datos son los DAO descritos en la sección anterior.")
     diagrama(d, "arquitectura", "Arquitectura en capas de la aplicación web", "arquitectura",
              "Cada capa se comunica solo con la inmediata. Elaboración propia.",
              "Navegador, presentación Flask, servicios, acceso a datos con DAO y base de datos SQLite.")
+    d.h2("Acceso seguro")
+    d.p("El acceso combina el registro de cuentas, un ingreso con control de intentos y una sesión de vida "
+        "limitada. Una persona sin cuenta se registra desde la pantalla de ingreso con su nombre, su correo y una "
+        "contraseña que escribe dos veces; la cuenta nace siempre con el rol Cliente, porque el rol no viaja en el "
+        "formulario, y la sesión se inicia de inmediato. Las medidas se resumen en la {t:seguridad} y las "
+        "pantallas de ingreso y registro están en el {a:F}.")
+    d.tabla("seguridad", "Medidas de seguridad del acceso", ["Medida", "Cómo funciona", "Componente"],
+            [["Registro", "Nombre de 3 a 80 caracteres, correo válido y único, contraseña confirmada; el servidor "
+                          "asigna el rol Cliente.", "Servicio de autenticación"],
+             ["Política de contraseñas", "De 8 a 128 caracteres, con letras y números, fuera de una lista de "
+                                         "contraseñas comunes y distinta del correo y del nombre.",
+              "Servicio de autenticación"],
+             ["Almacenamiento", "Solo se guarda el hash con sal que calcula Werkzeug; nunca la contraseña.",
+              "DAO de usuarios"],
+             ["Ingreso", "Verifica siempre un hash, aunque el correo no exista, y responde con el mismo mensaje "
+                         "y en un tiempo parecido.", "Servicio de autenticación"],
+             ["Límite de intentos", "Cinco fallos en 15 minutos con el mismo correo y origen bloquean ese ingreso "
+                                    "cinco minutos; veinte fallos desde un origen bloquean todo ingreso desde él; "
+                                    "veinte registros por hora bloquean nuevos registros. Responde 429 e indica "
+                                    "los minutos restantes.", "Limitador de intentos"],
+             ["Sesión", "Cookie HttpOnly y SameSite=Lax, Secure con HTTPS, caduca a los 30 minutos de inactividad; "
+                        "la clave de firma persiste en un archivo 0600 o en SECRET_KEY.", "Módulo de seguridad"],
+             ["Formularios", "Token CSRF por sesión en cada formulario; el cierre de sesión solo se acepta por "
+                             "POST.", "Módulo de seguridad"],
+             ["Redirección", "El parámetro «siguiente» solo admite rutas internas, nunca direcciones externas.",
+              "Ruta de ingreso"],
+             ["Cabeceras", "Content-Security-Policy, X-Frame-Options, X-Content-Type-Options, Referrer-Policy y "
+                           "Cache-Control no-store en las páginas dinámicas.", "Módulo de seguridad"]],
+            [1.25, 3.7, 1.55], "lll", juntas=False,
+            nota="Elaboración propia con base en las recomendaciones de OWASP {c:owasp}.")
+    d.p("El control de intentos vive en la memoria del proceso: protege contra la adivinanza de contraseñas desde "
+        "un mismo origen, pero se reinicia al reiniciar el servidor y no se comparte entre varios procesos. En un "
+        "despliegue real conviene guardarlo en un almacén compartido, servir la aplicación por HTTPS y definir "
+        "`COOKIE_SEGURA=1`.")
+    d.h2("Consultas e historial del cliente")
+    d.p("La opción Consultas del menú del cliente abre una sola pantalla con dos partes (véase el {a:F}). En la "
+        "primera, «Iniciar una consulta», el cliente elige uno de sus equipos y describe el problema; al enviar, el "
+        "sistema crea el caso en estado Abierto y abre la consulta guiada. Si todavía no tiene equipos, la pantalla "
+        "lo invita a registrar uno. En la segunda, «Mis últimas 5 consultas», se listan de la más reciente a la más "
+        "antigua el equipo, la fecha, el estado y el diagnóstico de cada caso, o «Consulta sin terminar» si no "
+        "llegó a una hoja del árbol.")
+    d.p("Con el botón Ver, el cliente elige una consulta: su fila queda resaltada y marcada como elegida, y debajo "
+        "aparece su detalle con la falla diagnosticada, su severidad, el factor de certeza, la solución "
+        "recomendada y las respuestas dadas. Desde allí puede abrir el caso completo o consultar de nuevo el mismo "
+        "equipo, con el formulario ya preseleccionado. Una consulta de otro cliente no se puede elegir: el "
+        "servidor responde 404. Las consultas más antiguas siguen en la lista Mis casos.")
     d.h2("Instalación y ejecución")
     d.p("La aplicación requiere Python 3.10 o superior (se probó con la versión 3.13) {c:python} y el paquete Flask. "
         "Los pasos de la {f:instalacion} instalan las dependencias, crean la base con el conocimiento y las cuentas de "
@@ -691,21 +797,26 @@ def construir(previo: dict, datos: dict) -> DocumentoAPA:
     d.h2("Cuentas de demostración")
     d.p("Para probar el sistema se crean cuatro cuentas, una por rol ({t:cuentas}). Son solo de demostración y deben "
         "cambiarse o eliminarse antes de cualquier uso real; la aplicación permite cambiar la contraseña desde la "
-        "cuenta de cada usuario. Para un uso real también se debe definir la variable de entorno `SECRET_KEY`; si "
-        "no existe, la aplicación genera una clave aleatoria cada vez que inicia y las sesiones abiertas se pierden.")
+        "cuenta de cada usuario, y cualquier persona puede crear una cuenta de cliente desde la pantalla de "
+        "ingreso. La clave que firma la sesión se toma de la variable de entorno `SECRET_KEY` o, si no existe, "
+        "se genera una vez y se guarda en `data/.clave_secreta`, de modo que las sesiones sobreviven a un "
+        "reinicio. Otras variables opcionales son `SESION_MINUTOS` (30 por defecto), `COOKIE_SEGURA` y "
+        "`ZONA_HORARIA` (America/Bogota por defecto).")
     d.tabla("cuentas", "Cuentas de demostración", ["Rol", "Correo", "Contraseña"],
             [["Administrador", "admin@sistemaexperto.local", "`Admin123*`"],
              ["Experto", "experto@sistemaexperto.local", "`Experto123*`"],
              ["Técnico", "tecnico@sistemaexperto.local", "`Tecnico123*`"],
              ["Cliente", "cliente@sistemaexperto.local", "`Cliente123*`"]], [1.4, 3.1, 2.0], "lll")
     d.h2("Pruebas automatizadas")
-    d.p("El proyecto incluye 27 pruebas con el módulo `unittest` {c:python}: 15 sobre el conocimiento, el motor y los "
-        "procesos del servicio, y 12 sobre las rutas web. Verifican, entre otros aspectos, que el árbol tenga al "
+    d.p("El proyecto incluye 55 pruebas con el módulo `unittest` {c:python}: 19 sobre el conocimiento, el motor y los "
+        "procesos del servicio, y 36 sobre las rutas web. Verifican, entre otros aspectos, que el árbol tenga al "
         "menos 25 ramas y una regla por hoja, que cada camino dispare exactamente su regla y ninguna otra, que la "
         "carga rechace un árbol con una falla sin hoja, el flujo completo desde la apertura del caso hasta su "
-        "resolución, la asignación exclusiva del técnico, el control de acceso por rol, la protección CSRF, el "
-        "cambio de contraseña y el rechazo de redirecciones a sitios externos. En la última ejecución las 27 "
-        "pruebas pasaron.")
+        "resolución, la asignación exclusiva del técnico, el control de acceso por rol, la protección CSRF y el "
+        "rechazo de redirecciones a sitios externos. También cubren el registro de cuentas, la política de "
+        "contraseñas, el bloqueo tras cinco intentos fallidos, la caducidad de la sesión, las cabeceras de "
+        "seguridad y la pantalla de consultas: las últimas cinco en orden, la elección de una y el aislamiento "
+        "entre clientes. En la última ejecución las 55 pruebas pasaron.")
     d.h2("Código fuente")
     d.p(f"El código fuente se entrega comprimido junto con este manual y está disponible en el repositorio del "
         f"proyecto ({REPOSITORIO}). La {{t:carpetas}} resume su estructura.")
@@ -776,10 +887,11 @@ def construir(previo: dict, datos: dict) -> DocumentoAPA:
 
     d.apendice("F", "Capturas de pantalla de la aplicación")
     d.p("Las capturas se tomaron con la aplicación en ejecución y datos de demostración. Del cliente se muestran el "
-        "ingreso ({f:cap01}), sus equipos ({f:cap02}), la consulta guiada ({f:cap03}) y el diagnóstico emitido "
-        "({f:cap04}); del técnico, la cola de casos ({f:cap05}) y el caso resuelto ({f:cap06}); del experto, la "
-        "lista de fallas ({f:cap07}) y el gránulo de conocimiento de una falla ({f:cap08}), y del administrador, "
-        "los usuarios ({f:cap09}) y los reportes ({f:cap10}).")
+        "ingreso ({f:cap01}), el registro de una cuenta nueva ({f:cap02}), sus equipos ({f:cap03}), la pantalla de "
+        "consultas con el historial de las últimas cinco ({f:cap04}), la consulta guiada ({f:cap05}) y el "
+        "diagnóstico emitido ({f:cap06}); del técnico, la cola de casos ({f:cap07}) y el caso resuelto "
+        "({f:cap08}); del experto, la lista de fallas ({f:cap09}) y el gránulo de conocimiento de una falla "
+        "({f:cap10}), y del administrador, los usuarios ({f:cap11}) y los reportes ({f:cap12}).")
     for archivo, clave, titulo, nota in CAPTURAS_APP:
         ruta = CAPTURAS / f"{archivo}.png"
         with Image.open(ruta) as imagen:

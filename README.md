@@ -35,11 +35,12 @@ clases DAO.
 pip install -r requirements.txt
 python scripts/crear_bd.py                    # carga el conocimiento y crea los usuarios de demostración
 python app.py                                 # abre http://127.0.0.1:5000
-python -m unittest discover -s tests -v       # 27 pruebas automatizadas
+python -m unittest discover -s tests -v       # 55 pruebas automatizadas
 ```
 
-Usuarios de demostración (cámbielos o elimínelos antes de un uso real; cada usuario puede cambiar su contraseña
-desde la aplicación):
+Cualquier persona puede crear su cuenta desde la pantalla de ingreso («Crear cuenta»); las cuentas nuevas son de
+rol Cliente. Usuarios de demostración (cámbielos o elimínelos antes de un uso real; cada usuario puede cambiar su
+contraseña desde la aplicación):
 
 | Rol | Correo | Contraseña |
 |---|---|---|
@@ -48,13 +49,35 @@ desde la aplicación):
 | Técnico | tecnico@sistemaexperto.local | Tecnico123* |
 | Cliente | cliente@sistemaexperto.local | Cliente123* |
 
-Defina la variable de entorno `SECRET_KEY` para que las sesiones sobrevivan a un reinicio del servidor; si no existe,
-la aplicación genera una clave aleatoria cada vez que inicia. Si la base de datos no existe, `app.py` la crea con el
-conocimiento y los usuarios de demostración; para usar otro archivo defina `SISTEMA_EXPERTO_DB`.
+Si la base de datos no existe, `app.py` la crea con el conocimiento y los usuarios de demostración; para usar otro
+archivo defina `SISTEMA_EXPERTO_DB`.
+
+Variables de entorno opcionales:
+
+| Variable | Efecto |
+|---|---|
+| `SECRET_KEY` | Clave que firma la sesión. Si no se define, se genera una vez y se guarda en `data/.clave_secreta` (permisos 0600), así que las sesiones sobreviven a un reinicio. |
+| `SESION_MINUTOS` | Minutos de inactividad antes de cerrar la sesión (30 por defecto). |
+| `COOKIE_SEGURA` | Con `1`, la cookie de sesión solo viaja por HTTPS; actívela al publicar la aplicación. |
+| `ZONA_HORARIA` | Zona en que se muestran las fechas (`America/Bogota` por defecto; la base guarda UTC). |
+| `SISTEMA_EXPERTO_DB` | Ruta del archivo SQLite. |
+
+## Acceso seguro
+
+- **Registro:** nombre, correo y contraseña confirmada; el rol Cliente lo asigna el servidor y la sesión se inicia al registrarse.
+- **Contraseñas:** de 8 a 128 caracteres, con letras y números, fuera de una lista de contraseñas comunes y distintas del
+  correo y del nombre; se guardan solo como hash con sal (Werkzeug).
+- **Ingreso:** mismo mensaje y tiempo parecido si el correo no existe; tras 5 intentos fallidos en 15 minutos con el mismo
+  correo y origen, el ingreso se bloquea 5 minutos (también hay límites por origen y por registros). El límite vive en la
+  memoria del proceso: se reinicia con el servidor y no se comparte entre varios procesos.
+- **Sesión:** cookie HttpOnly y SameSite=Lax, caducidad por inactividad, token CSRF en cada formulario y cierre de sesión por POST.
+- **Cabeceras:** Content-Security-Policy, X-Frame-Options, nosniff, Referrer-Policy y `Cache-Control: no-store`.
 
 ## Flujo principal
 
-1. El cliente registra un equipo y abre un caso (estado *Abierto*).
+1. El cliente se registra (o ingresa), registra un equipo y, en la pantalla **Consultas**, inicia una consulta: elige el
+   equipo y describe el problema; el sistema abre el caso (estado *Abierto*). En esa misma pantalla ve sus **últimas 5
+   consultas**, elige una y revisa su diagnóstico, su solución y las respuestas dadas.
 2. Responde la consulta con sí o no. El motor navega el árbol y, al llegar a una hoja, evalúa las reglas.
 3. Se emite el diagnóstico con su solución y su factor de certeza; el caso pasa a *Diagnosticado*.
 4. Un técnico toma el caso (*En atención*), registra seguimiento y lo resuelve (*Resuelto*) indicando si el
@@ -67,7 +90,7 @@ conocimiento y los usuarios de demostración; para usar otro archivo defina `SIS
 | Ruta | Contenido |
 |---|---|
 | `app.py` | Punto de entrada de la aplicación web. |
-| `src/web/` | Rutas por rol, seguridad (sesión, roles y CSRF), plantillas y estilos. |
+| `src/web/` | Rutas por rol, seguridad (sesión, roles, CSRF, límite de intentos y cabeceras), plantillas y estilos. |
 | `src/services/` | Servicios de negocio y motor de inferencia. |
 | `src/dao/` | Patrón DAO (acceso a datos) y cargador del conocimiento. |
 | `src/domain/` | Entidades del dominio. |
@@ -76,7 +99,7 @@ conocimiento y los usuarios de demostración; para usar otro archivo defina `SIS
 | `sql/consultas_granulos.sql` | Consultas de gránulos de conocimiento por hipótesis (G1 a G7). |
 | `scripts/` | Creación de la base, consulta de gránulos y herramientas para regenerar diagramas, capturas y documentos. |
 | `tests/` | Pruebas del conocimiento, del motor, de los procesos y de las rutas web. |
-| `docs/` | Diagramas, capturas de pantalla, salidas de las consultas y documentos Word. |
+| `docs/` | Diagramas (PNG y SVG; el árbol de decisión con texto y el modelo relacional completo también en PDF), capturas de pantalla, salidas de las consultas y documentos Word. |
 
 ## Conocimiento y consultas de gránulos
 

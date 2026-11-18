@@ -94,3 +94,11 @@ input:focus, select:focus, textarea:focus { outline: 2px solid #8fcfcf; border-c
 details.tarjeta > summary { cursor: pointer; font-weight: 600; }
 details.tarjeta[open] > summary { margin-bottom: 10px; }
 .muted { color: var(--suave); }
+.casilla { display: flex; align-items: center; gap: 8px; font-weight: 400; margin: 10px 0 0; color: var(--suave); }
+.casilla input { width: auto; margin: 0; }
+.aparte { margin: 18px 0 0; font-size: .92rem; color: var(--suave); }
+.historial tr.seleccionada td { background: #e8f3f3; }
+.historial tr.seleccionada td:first-child { box-shadow: inset 4px 0 0 var(--primario); }
+.etiqueta.elegida { background: var(--primario); color: #fff; }
+small.muted { display: block; margin-top: 4px; font-size: .82rem; }
+.historial td:first-child { white-space: nowrap; }

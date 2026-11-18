@@ -22,7 +22,7 @@
 <polygon fill="none" stroke="black" points="432,-237.25 0,-237.25 0,-199.25 432,-199.25 432,-237.25"/>
 <text text-anchor="start" x="185.5" y="-224.4" font-family="Arial" font-weight="bold" font-size="9.50">Presentación</text>
 <text text-anchor="start" x="103" y="-216.1" font-family="Arial" font-size="8.00">Flask: rutas por rol (src/web/rutas.py) · plantillas Jinja2 · sesión,</text>
-<text text-anchor="start" x="173" y="-208.1" font-family="Arial" font-size="8.00">CSRF y control de roles</text>
+<text text-anchor="start" x="141.5" y="-208.1" font-family="Arial" font-size="8.00">CSRF, límite de intentos y control de roles</text>
 </g>
 <!-- usuarios&#45;&gt;c0 -->
 <g id="edge1" class="edge">

@@ -144,6 +144,43 @@ class TestProcesos(BaseTest):
         with self.assertRaises(ErrorNegocio):
             self.auth.autenticar("ana@correo.com", "clave12345")
 
+    def test_politica_de_contrasenas(self):
+        rechazadas = ["corta1", "sololetrasaqui", "12345678", "password1", "x1" * 70, "ana@correo.com", "ana"]
+        for clave in rechazadas:
+            with self.assertRaises(ErrorNegocio, msg=clave):
+                self.auth.registrar("Ana Nueva", "nueva@correo.com", clave)
+        for clave in ("ana@correo.com1", "Admin123*", "olá-contraseña-9"):
+            self.auth.registrar("Ana Nueva", f"{abs(hash(clave))}@correo.com", clave)
+
+    def test_un_correo_inexistente_y_una_clave_mala_dan_el_mismo_mensaje(self):
+        mensajes = set()
+        for correo in ("ana@correo.com", "nadie@correo.com"):
+            with self.assertRaises(ErrorNegocio) as ctx:
+                self.auth.autenticar(correo, "incorrecta1")
+            mensajes.add(str(ctx.exception))
+        self.assertEqual(len(mensajes), 1)
+
+    def test_el_historial_trae_las_ultimas_cinco_con_su_diagnostico(self):
+        ids = [self.servicio.abrir_caso(self.cliente_id, self.equipo_id, f"Problema número {i} del equipo")
+               for i in range(1, 8)]
+        self._recorrer(ids[-1], ["no", "no", "no"])                      # solo la última termina: F01
+        historial = self.servicio.historial(self.cliente_id)
+        self.assertEqual([h.caso_id for h in historial], ids[::-1][:5])
+        self.assertEqual((historial[0].falla_codigo, historial[0].estado_caso), ("F01", "Diagnosticado"))
+        self.assertEqual(historial[0].preguntas, 3)
+        self.assertIsNone(historial[1].falla)
+        self.assertEqual(len(self.servicio.historial(self.cliente_id, 3)), 3)
+        otra = self.auth.registrar("Otra Persona", "otra@correo.com", "clave12345")
+        self.assertEqual(self.servicio.historial(otra), [])               # nadie ve el historial de otro
+
+    def test_ficha_de_una_consulta_terminada(self):
+        caso_id = self.servicio.abrir_caso(self.cliente_id, self.equipo_id, "No enciende nada")
+        self._recorrer(caso_id, ["no", "no", "no"])
+        ficha = self.servicio.ficha(self.servicio.casos.obtener(caso_id))
+        self.assertEqual(ficha["hipotesis"].codigo, "F01")
+        self.assertEqual(len(ficha["respuestas"]), 3)
+        self.assertIsNotNone(ficha["regla"])
+
     def test_retroceder_deshace_la_ultima_respuesta(self):
         caso_id = self.servicio.abrir_caso(self.cliente_id, self.equipo_id, "Falla al arrancar")
         consulta = self.servicio.iniciar_consulta(self.servicio.casos.obtener(caso_id))

@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from flask import (
-    Blueprint, abort, flash, g, redirect, render_template, request, session, url_for,
+    Blueprint, abort, current_app, flash, g, redirect, render_template, request, session, url_for,
 )
 
 from src.dao.conocimiento_dao import (
@@ -13,6 +13,7 @@ from src.dao.usuario_dao import RolDAO, UsuarioDAO
 from src.services.servicios import (
     AutenticacionService, DiagnosticoService, EquipoService, ErrorNegocio,
 )
+from src.web import seguridad
 from src.web.seguridad import requiere_rol
 
 publico = Blueprint("publico", __name__)
@@ -22,6 +23,8 @@ tecnico = Blueprint("tecnico", __name__, url_prefix="/tecnico")
 conocimiento = Blueprint("conocimiento", __name__, url_prefix="/conocimiento")
 admin = Blueprint("admin", __name__, url_prefix="/admin")
 cuenta = Blueprint("cuenta", __name__, url_prefix="/cuenta")
+
+LIMITE_HISTORIAL = 5          # consultas que muestra el historial del cliente
 
 
 def _error(mensaje: str) -> None:
@@ -64,43 +67,76 @@ def inicio():
     return redirect(url_for("publico.panel" if g.usuario else "publico.login"))
 
 
+def _iniciar_sesion(usuario_id: int) -> None:
+    """Abre una sesión nueva (descarta la anterior para evitar la fijación de sesión)."""
+    session.clear()
+    session.permanent = True            # caduca por inactividad (PERMANENT_SESSION_LIFETIME)
+    session["usuario_id"] = usuario_id
+
+
 @publico.route("/login", methods=["GET", "POST"])
 def login():
+    if request.method == "GET" and g.usuario:
+        return redirect(url_for("publico.panel"))
     if request.method == "POST":
+        limites, ip = seguridad.limitadores(), seguridad.origen()
+        correo = request.form.get("correo", "").strip().lower()[:120]
+        clave_cuenta = (ip, correo)
+        espera = max(limites.cuenta.segundos_restantes(clave_cuenta), limites.origen.segundos_restantes(ip))
+        if espera:
+            _error(f"Demasiados intentos fallidos. Intente de nuevo en {seguridad.minutos(espera)} minuto(s).")
+            return render_template("login.html", correo=correo), 429
         try:
-            usuario = AutenticacionService(g.con).autenticar(
-                request.form.get("correo", ""), request.form.get("clave", ""))
+            usuario = AutenticacionService(g.con).autenticar(correo, request.form.get("clave", "")[:200])
         except ErrorNegocio as error:
-            _error(str(error))
-        else:
-            session.clear()
-            session["usuario_id"] = usuario.id
-            siguiente = request.args.get("siguiente", "")
-            if _destino_seguro(siguiente):
-                return redirect(siguiente)
-            return redirect(url_for("publico.panel"))
-    return render_template("login.html")
+            limites.cuenta.registrar(clave_cuenta)
+            limites.origen.registrar(ip)
+            current_app.logger.warning("Ingreso fallido: correo=%s origen=%s", correo, ip)
+            espera = limites.cuenta.segundos_restantes(clave_cuenta)
+            _error(f"Demasiados intentos fallidos. Intente de nuevo en {seguridad.minutos(espera)} minuto(s)."
+                   if espera else str(error))
+            return render_template("login.html", correo=correo), 429 if espera else 200
+        limites.cuenta.limpiar(clave_cuenta)
+        _iniciar_sesion(usuario.id)
+        siguiente = request.args.get("siguiente", "")
+        if _destino_seguro(siguiente):
+            return redirect(siguiente)
+        return redirect(url_for("publico.panel"))
+    return render_template("login.html", correo="")
 
 
 @publico.route("/logout", methods=["POST"])
 def logout():
     session.clear()
+    flash("Sesión cerrada.", "ok")
     return redirect(url_for("publico.login"))
 
 
 @publico.route("/registro", methods=["GET", "POST"])
 def registro():
+    if request.method == "GET" and g.usuario:
+        return redirect(url_for("publico.panel"))
+    valores = {"nombre": "", "correo": ""}
     if request.method == "POST":
+        f, limites, ip = request.form, seguridad.limitadores(), seguridad.origen()
+        valores = {"nombre": f.get("nombre", "")[:80], "correo": f.get("correo", "")[:120]}
+        espera = limites.altas.segundos_restantes(ip)
+        if espera:
+            _error(f"Se crearon demasiadas cuentas desde este equipo. Intente en {seguridad.minutos(espera)} minuto(s).")
+            return render_template("registro.html", **valores), 429
         try:
-            AutenticacionService(g.con).registrar(
-                request.form.get("nombre", ""), request.form.get("correo", ""),
-                request.form.get("clave", ""))
+            if f.get("clave", "") != f.get("confirmacion", ""):
+                raise ErrorNegocio("La confirmación no coincide con la contraseña.")
+            usuario_id = AutenticacionService(g.con).registrar(
+                f.get("nombre", ""), f.get("correo", ""), f.get("clave", ""))
         except ErrorNegocio as error:
             _error(str(error))
         else:
-            flash("Cuenta creada. Ya puede iniciar sesión.", "ok")
-            return redirect(url_for("publico.login"))
-    return render_template("registro.html")
+            limites.altas.registrar(ip)
+            _iniciar_sesion(usuario_id)
+            flash("Cuenta creada. Ya puede iniciar una consulta.", "ok")
+            return redirect(url_for("cliente.consultas"))
+    return render_template("registro.html", **valores)
 
 
 @publico.route("/panel")
@@ -110,7 +146,7 @@ def panel():
     u = g.usuario
     datos: dict = {}
     if u.rol == "Cliente":
-        datos["casos"] = dao_casos.listar(cliente_id=u.id)[:5]
+        datos["casos"] = dao_casos.listar(cliente_id=u.id)[:LIMITE_HISTORIAL]
         datos["equipos"] = len(EquipoDAO(g.con).listar_por_cliente(u.id))
     elif u.rol == "Técnico":
         datos["cola"] = dao_casos.cola_sin_tecnico()
@@ -172,20 +208,44 @@ def equipo_eliminar(equipo_id: int):
     return redirect(url_for("cliente.equipos"))
 
 
+def _pantalla_consultas(valores: dict | None = None):
+    """Formulario para iniciar una consulta, últimas consultas del cliente y detalle de la que eligió."""
+    servicio = DiagnosticoService(g.con)
+    historial = servicio.historial(g.usuario.id, LIMITE_HISTORIAL)
+    elegida, ficha = None, None
+    pedida = _entero(request.args.get("ver"), None)
+    if pedida is not None:
+        elegida = CasoDAO(g.con).obtener(pedida)
+        if elegida is None or elegida.cliente_id != g.usuario.id:
+            abort(404)                  # no se distingue «no existe» de «es de otro cliente»
+        ficha = servicio.ficha(elegida)
+    valores = valores or {"equipo_id": _entero(request.args.get("equipo"), None), "descripcion": ""}
+    return render_template(
+        "consultas.html", equipos=EquipoDAO(g.con).listar_por_cliente(g.usuario.id), valores=valores,
+        historial=historial, limite=LIMITE_HISTORIAL, elegida=elegida, ficha=ficha,
+        en_historial=elegida is not None and any(h.caso_id == elegida.id for h in historial))
+
+
+@cliente.route("/consultas")
+@requiere_rol("Cliente")
+def consultas():
+    return _pantalla_consultas()
+
+
 @cliente.route("/casos/nuevo", methods=["GET", "POST"])
 @requiere_rol("Cliente")
 def caso_nuevo():
-    lista = EquipoDAO(g.con).listar_por_cliente(g.usuario.id)
-    if request.method == "POST":
-        try:
-            caso_id = DiagnosticoService(g.con).abrir_caso(
-                g.usuario.id, _entero(request.form.get("equipo_id")), request.form.get("descripcion", ""))
-        except ErrorNegocio as error:
-            _error(str(error))
-        else:
-            flash("Caso abierto. Responda la consulta para obtener el diagnóstico.", "ok")
-            return redirect(url_for("casos.consulta", caso_id=caso_id))
-    return render_template("caso_nuevo.html", equipos=lista)
+    if request.method == "GET":                      # dirección antigua: muestra la misma pantalla de consultas
+        return _pantalla_consultas()
+    try:
+        caso_id = DiagnosticoService(g.con).abrir_caso(
+            g.usuario.id, _entero(request.form.get("equipo_id")), request.form.get("descripcion", ""))
+    except ErrorNegocio as error:
+        _error(str(error))
+        return _pantalla_consultas({"equipo_id": _entero(request.form.get("equipo_id"), None),
+                                    "descripcion": request.form.get("descripcion", "")[:1000]})
+    flash("Consulta iniciada. Responda las preguntas para obtener el diagnóstico.", "ok")
+    return redirect(url_for("casos.consulta", caso_id=caso_id))
 
 
 # ============================================================ casos (compartido por rol)
@@ -206,15 +266,10 @@ def lista():
 @requiere_rol("Cliente", "Técnico", "Administrador")
 def detalle(caso_id: int):
     caso = _caso_visible(caso_id)
-    diagnostico = DiagnosticoDAO(g.con).por_caso(caso.id)
-    hipotesis = HipotesisDAO(g.con).obtener(diagnostico.hipotesis_id) if diagnostico else None
-    regla = ReglaDAO(g.con).obtener(diagnostico.regla_id) if diagnostico else None
-    servicio = DiagnosticoService(g.con)
-    consulta = servicio.consultas.ultima_por_caso(caso.id)
-    respuestas = servicio.respuestas.listar(consulta.id) if consulta else []
-    return render_template(
-        "caso_detalle.html", caso=caso, diagnostico=diagnostico, hipotesis=hipotesis, regla=regla,
-        respuestas=respuestas, seguimientos=SeguimientoDAO(g.con).listar_por_caso(caso.id))
+    ficha = DiagnosticoService(g.con).ficha(caso)
+    return render_template("caso_detalle.html", caso=caso, seguimientos=SeguimientoDAO(g.con).listar_por_caso(caso.id),
+                           diagnostico=ficha["diagnostico"], hipotesis=ficha["hipotesis"], regla=ficha["regla"],
+                           respuestas=ficha["respuestas"])
 
 
 @casos.route("/<int:caso_id>/consulta")
